@@ -23,4 +23,9 @@ releases:
           - name: allele_sequences
             url: https://github.com/openvax/mhcflurryii/releases/download/pre-0.0.1/allele_sequences.20200916.tar.bz2
             default: false
-
+          - name: data_published
+            url: https://github.com/openvax/mhcflurryii/releases/download/pre-0.0.1/data_published.20200921.tar.bz2
+            default: false
+          - name: data_iedb
+            url: https://github.com/openvax/mhcflurryii/releases/download/pre-0.0.1/data_iedb.20200921.tar.bz2
+            default: false
