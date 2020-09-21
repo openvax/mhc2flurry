@@ -1,8 +1,6 @@
 #!/bin/bash
 #
-# Download published non-IEDB MHC I ligand data. Most data has made its way into
-# IEDB but not all. Here we gather up the rest.
-#
+# Download published MHC II ligand data.
 #
 set -e
 set -x
