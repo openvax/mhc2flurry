@@ -6,7 +6,7 @@ set -e
 set -x
 
 DOWNLOAD_NAME=data_published
-SCRATCH_DIR=${TMPDIR-/tmp}/mhcflurry-downloads-generation
+SCRATCH_DIR=${TMPDIR-/tmp}/mhcflurryii-downloads-generation
 SCRIPT_ABSOLUTE_PATH="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/$(basename "${BASH_SOURCE[0]}")"
 SCRIPT_DIR=$(dirname "$SCRIPT_ABSOLUTE_PATH")
 
@@ -61,6 +61,11 @@ mkdir -p ms/$PMID
 wget -q 'https://onlinelibrary.wiley.com/action/downloadSupplement?doi=10.1002%2Feji.201545930&file=eji3483-sup-0003-supinfo.xlsx' -P ms/$PMID
 wget -q 'https://onlinelibrary.wiley.com/action/downloadSupplement?doi=10.1002%2Feji.201545930&file=eji3483-sup-0004-supinfo.xlsx' -P ms/$PMID
 wget -q 'https://onlinelibrary.wiley.com/action/downloadSupplement?doi=10.1002%2Feji.201545930&file=eji3483-sup-0005-supinfo.xlsx' -P ms/$PMID
+
+# Bassani-Sternberg, ..., Krackhardt Nature Comm. 2016 [PMID 27869121]
+PMID=27869121
+mkdir -p ms/$PMID
+wget -q "https://static-content.springer.com/esm/art%3A10.1038%2Fncomms13404/MediaObjects/41467_2016_BFncomms13404_MOESM1318_ESM.xlsx" -P ms/$PMID
 
 # Clement, ..., Santambrogio. J. Biol. Chem. 2016 [PMID 26740625]
 PMID=26740625
