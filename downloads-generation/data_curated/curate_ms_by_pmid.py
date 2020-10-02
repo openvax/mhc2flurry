@@ -1,6 +1,16 @@
 """
 Filter and combine various peptide/MHC datasets to derive a composite training set,
 optionally including eluted peptides identified by mass-spec.
+
+The handle_pmid_XXXX functions should return a DataFrame with columns:
+ - peptide
+ - sample_id
+ - hla [space separated list of alleles]
+ - pulldown_antibody
+ - format [monoallelic, multiallelic, DR-specific]
+ - mhc_class [should be II]
+ - sample type [an expression group, e.g. "spleen" or "expi293"]
+ - cell_line [for samples deriving from a single known cell line]
 """
 import sys
 import argparse
@@ -350,9 +360,131 @@ def handle_pmid_31495665(filename):
     return result_df
 
 
-def handle_pmid_31611696(*filenames):
+def handle_pmid_31611696(data_s1_filename, data_s2_filename):
     """Racle, ..., Gfeller. Nature Biotechnology 2019 [PMID 31611696]"""
-    return None
+    data_s1 = pandas.read_csv(data_s1_filename, sep=None).set_index("Sequence")
+    data_s2 = pandas.read_csv(data_s2_filename, sep=None).set_index("Sequence")
+
+    # HLA typing is given as a PDF in Supplementary Table 1.
+    # In cases of ambiguous assignment we use the primary assignment.
+    text = """
+    3808_HMC MENINGIOMA DRB1*03:01 DRB1*07:01 DRB3*01:01 DRB4*01:01 DPA1*01:03 DPA1*02:01 DPB1*03:01 DPB1*11:01 DQA1*02:01 DQA1*05:01 DQB1*02:01 DQB1*02:02
+    3830_NJF MENINGIOMA DRB1*04:04 DRB1*11:01 DRB3*02:02 DRB4*01:03 DPA1*01:03 DPB1*02:01 DPB1*06:01 DQA1*03:01 DQA1*05:05 DQB1*03:01 DQB1*03:02
+    3849BR MENINGIOMA DRB1*11:04 DRB3*02:02 DPA1*01:03 DPB1*02:01 DPB1*04:01 DQA1*05:05 DQB1*03:01
+    3865_DM MENINGIOMA DRB1*01:01 DRB1*07:01 DRB4*01:03 DPA1*01:03 DPB1*04:01 DPB1*20:01 DQA1*01:01 DQA1*02:01 DQB1*03:03 DQB1*05:01
+    3869_GA MENINGIOMA DRB1*01:03 DRB1*04:04 DRB4*01:03 DPA1*01:03 DPB1*04:01 DPB1*126:01 DQA1*03:01 DQA1*05:05 DQB1*03:01 DQB1*03:02
+    3911_ME MENINGIOMA DRB1*11:01 DRB3*02:02 DPA1*01:03 DPB1*04:01 DQA1*05:05 DQB1*03:01
+    3912_BAM MENINGIOMA DRB1*03:01 DRB1*04:01 DRB3*01:01 DRB4*01:03 DPA1*01:03 DPB1*04:01 DQA1*03:01 DQA1*05:01 DQB1*02:01 DQB1*03:02
+    3947_GA MENINGIOMA DRB1*01:01 DRB1*13:01 DRB3*01:01 DPA1*01:03 DPB1*02:01 DPB1*04:02 DQA1*01:01 DQA1*01:03 DQB1*05:01 DQB1*06:03
+    3971_ORA MENINGIOMA DRB1*13:03 DRB1*07:01 DRB3*01:01 DRB4*01:01 DPA1*01:03 DPA1*02:02 DPB1*04:01 DQA1*02:01 DQA1*05:05 DQB1*02:02 DQB1*03:01
+    3993 MENINGIOMA DRB1*07:01 DRB1*15:01 DRB4*01:03 DRB5*01:01 DPA1*01:03 DPA1*02:01 DPB1*04:01 DPB1*17:01 DQA1*01:02 DQA1*02:01 DQB1*02:02 DQB1*06:02
+    4001 MENINGIOMA DRB1*13:01 DRB1*14:01 DRB3*01:01 DRB3*02:02 DPA1*01:03 DPB1*04:01 DPB1*04:02 DQA1*01:03 DQA1*01:04 DQB1*05:03 DQB1*06:03
+    4021 MENINGIOMA DRB1*11:01 DRB1*04:05 DRB3*02:02 DRB4*01:03 DPA1*01:03 DPB1*03:01 DPB1*104:01 DQA1*03:03 DQA1*05:05 DQB1*02:02 DQB1*03:01
+    4037_DC MENINGIOMA DRB1*01:01 DPA1*01:03 DPB1*04:01 DPB1*06:01 DQA1*01:01 DQB1*05:01
+    4052_BA MENINGIOMA DRB1*03:01 DRB1*11:04 DRB3*01:01 DRB3*02:02 DPA1*01:03 DPB1*04:01 DQA1*05:01 DQA1*05:05 DQB1*02:01 DQB1*03:01
+    BP455 B-CELL DRB1*10:01 DRB1*13:01 DRB3*01:01 DPA1*01:03 DPB1*02:01 DQA1*01:05 DQA1*01:10 DQB1*05:01 DQB1*06:03
+    CD165 B-CELL DRB1*11:01 DRB3*02:02 DPA1*01:03 DPB1*04:01 DPB1*04:02 DQA1*05:05 DQB1*03:01
+    CM647 B-CELL DRB1*07:01 DRB1*16:01 DRB4*01:03 DRB5*02:02 DPA1*01:03 DPB1*02:01 DPB1*23:01 DQA1*01:02 DQA1*02:01 DQB1*02:02 DQB1*05:02
+    GD149 B-CELL DRB1*07:01 DRB1*13:01 DRB3*01:01 DRB4*01:01 DPA1*01:03 DPA1*02:01 DPB1*03:01 DPB1*04:01 DQA1*01:10 DQA1*02:01 DQB1*02:02 DQB1*06:03
+    JY B-CELL DRB1*04:04 DRB1*13:01 DRB3*01:01 DRB4*01:03 DPA1*01:03 DPB1*02:01 DPB1*04:01 DQA1*01:03 DQA1*03:01 DQB1*03:02 DQB1*06:03
+    PD42 B-CELL DRB1*01:02 DRB1*15:01 DRB5*01:01 DPA1*01:03 DPA1*02:02 DPB1*04:01 DPB1*05:01 DQA1*01:01 DQA1*01:02 DQB1*05:01 DQB1*06:02
+    RA957 B-CELL DRB1*04:01 DRB1*08:01 DRB4*01:03 DPA1*01:03 DPB1*04:01 DPB1*04:02 DQA1*03:03 DQA1*04:01 DQB1*03:01 DQB1*04:02
+    TIL1 TIL DRB1*01:01 DRB1*04:08 DRB4*01:03 DPA1*01:03 DPB1*02:01 DPB1*04:01 DQA1*01:01 DQA1*03:03 DQB1*03:01 DQB1*05:01
+    TIL3 TIL DRB1*12:01 DRB1*15:01 DRB3*02:02 DRB5*01:01 DPA1*01:03 DPB1*03:01 DPB1*04:01 DQA1*01:02 DQA1*05:05 DQB1*03:01 DQB1*05:02
+    """
+    rows = [
+        row.split() for row in text.strip().split("\n")
+    ]
+    rows = [
+        (row[0].replace("_", "-"), row[1], " ".join(row[2:])) for row in rows
+    ]
+    info_df = pandas.DataFrame(rows, columns=["kind", "sample_type", "hla"])
+    info_df = info_df.set_index("kind")
+
+    # Data S1
+    renames = {
+        c : c.replace("Intensity", "").replace("_II", "").strip()
+        for c in data_s1.columns if c.startswith("Intensity")
+    }
+
+    data_s1 = data_s1[sorted(renames)].rename(columns=renames).rename(columns={
+        "3830NJF": "3830-NJF",
+        "3865DM": "3865-DM",
+        "3912BAM": "3912-BAM",
+        "3865DM": "3865-DM",
+        "CD165_ IFNg": "CD165_IFNg",
+    })
+
+    result1_df = data_s1.stack().reset_index()
+    result1_df.columns = ["peptide", "sample_id", "intensity"]
+    result1_df = result1_df.loc[result1_df.intensity > 0]
+    result1_df["kind"] = result1_df.sample_id.map(lambda s: {
+        "JY_DR": "JY",
+        "CD165_IFNg": "CD165",
+    }.get(s, s))
+    result1_df["hla"] = result1_df.kind.map(info_df.hla)
+    result1_df["pulldown_antibody"] = "HB145"
+    result1_df["format"] = "MULTIALLELIC"
+    result1_df.loc[
+        result1_df.sample_id == "JY_DR",
+        "format"
+    ] = "DR-specific"
+    result1_df["mhc_class"] = "II"
+    result1_df["sample_type"] = result1_df.kind.map(info_df.sample_type)
+    result1_df["cell_line"] = [
+        row.kind if row.sample_type == "B-CELL" else ""
+        for _, row in result1_df.iterrows()
+    ]
+    del result1_df["kind"]
+
+    # Data S2
+    renames = {
+        c : c.replace("Intensity", "").replace("_II", "").strip()
+        for c in data_s2.columns if c.startswith("Intensity")
+    }
+
+    data_s2 = data_s2[sorted(renames)].rename(columns=renames).rename(columns={
+        "3830NJF": "3830-NJF",
+        "3865DM": "3865-DM",
+        "3912BAM": "3912-BAM",
+        "3865DM": "3865-DM",
+        "CD165_ IFNg": "CD165_IFNg",
+    })
+    result2_df = data_s2.stack().reset_index()
+    result2_df.columns = ["peptide", "sample_id", "intensity"]
+    result2_df["kind"] = result2_df.sample_id.str.replace(
+        "-HLA-DR", "").str.replace("-depleted", "").str.replace("_", "-")
+    result2_df["hla"] = result2_df.kind.map(info_df.hla)
+    result2_df["pulldown_antibody"] = ""
+    assert all(result2_df.sample_id.map(
+        lambda s: s.endswith("DR-depleted") or s.endswith("-DR")))
+    result2_df["format"] = result2_df.sample_id.map(
+        lambda s: "DR-depleted" if "DR-depleted" in s else "DR-specific")
+
+    result2_df["mhc_class"] = "II"
+    result2_df["sample_type"] = result2_df.kind.map(info_df.sample_type)
+    result2_df["cell_line"] = [
+        row.kind if row.sample_type == "B-CELL" else "" for _, row in
+        result2_df.iterrows()
+    ]
+    del result2_df["kind"]
+    result_df = pandas.concat([result1_df, result2_df], ignore_index=True)
+
+    # DR-specific samples used HB298 antibody
+    result_df.loc[
+        result_df.format == "DR-specific",
+        "pulldown_antibody"
+    ] = "HB298"
+
+    # Subsample alleles to just DR alleles for DR-specific samples.
+    result_df.loc[
+        result_df.format == "DR-specific",
+        "hla"
+    ] = result_df.loc[result_df.format == "DR-specific", "hla"].map(
+        lambda s: " ".join([allele for allele in s.split() if "DR" in allele])
+    )
+
+    return result_df
 
 
 def Xhandle_pmid_27869121(filename):
@@ -541,6 +673,13 @@ def handle_expression_human_protein_atlas(*filenames):
                 "sample_type:SPLEEN": ["spleen"],
                 "sample_type:OVARY": ["ovary"],
                 "sample_type:KIDNEY": ["kidney"],
+
+                # This is bad! I just can't find anything better currently.
+                # We should find some meningioma RNA-seq and switch to that.
+                "sample_type:MENINGIOMA": [
+                    "amygdala", "basal ganglia", "cerebellum", "cerebral cortex",
+                    "midbrain", "spinal cord",
+                ],
             }),
     ]
 
@@ -766,6 +905,7 @@ def run():
         ].map(json.dumps)
         expression_metadata_df.to_csv(args.expression_metadata_out, index=False)
         print("Wrote: %s" % os.path.abspath(args.expression_metadata_out))
+
 
 if __name__ == '__main__':
     run()
