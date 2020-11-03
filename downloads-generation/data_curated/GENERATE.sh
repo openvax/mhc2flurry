@@ -8,7 +8,7 @@ set -e
 set -x
 
 DOWNLOAD_NAME=data_curated
-SCRATCH_DIR=${TMPDIR-/tmp}/mhcflurryii-downloads-generation
+SCRATCH_DIR=${TMPDIR-/tmp}/mhc2flurry-downloads-generation
 SCRIPT_ABSOLUTE_PATH="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/$(basename "${BASH_SOURCE[0]}")"
 SCRIPT_DIR=$(dirname "$SCRIPT_ABSOLUTE_PATH")
 export PYTHONUNBUFFERED=1
@@ -31,10 +31,10 @@ cd $SCRATCH_DIR/$DOWNLOAD_NAME
 cp $SCRIPT_DIR/curate.py .
 cp $SCRIPT_DIR/curate_ms_by_pmid.py .
 
-MS_DIR="$(mhcflurryii-downloads path data_published)/ms"
+MS_DIR="$(mhc2flurry-downloads path data_published)/ms"
 cp -r "$MS_DIR" .
 
-EXPRESSION_DIR="$(mhcflurryii-downloads path data_published)/expression"
+EXPRESSION_DIR="$(mhc2flurry-downloads path data_published)/expression"
 cp -r "$EXPRESSION_DIR" .
 
 CURATE_BY_PMID_ARGS=""
@@ -59,7 +59,7 @@ rm -rf ms
 
 time python curate.py \
     --data-iedb \
-        "$(mhcflurryii-downloads path data_iedb)/mhc_ligand_full.csv.bz2" \
+        "$(mhc2flurry-downloads path data_iedb)/mhc_ligand_full.csv.bz2" \
     --data-additional-ms "$(pwd)/ms.by_pmid.csv.bz2" \
     --out-csv curated_training_data.csv \
     --out-affinity-csv curated_training_data.affinity.csv \
@@ -67,7 +67,7 @@ time python curate.py \
 
 time python curate.py \
     --data-iedb \
-        "$(mhcflurryii-downloads path data_iedb)/mhc_ligand_full.csv.bz2" \
+        "$(mhc2flurry-downloads path data_iedb)/mhc_ligand_full.csv.bz2" \
     --out-csv curated_training_data.no_additional_ms.csv
 
 for i in $(ls *.csv)

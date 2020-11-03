@@ -8,7 +8,7 @@ set -e
 set -x
 
 DOWNLOAD_NAME=allele_sequences
-SCRATCH_DIR=${TMPDIR-/tmp}/mhcflurryii-downloads-generation
+SCRATCH_DIR=${TMPDIR-/tmp}/mhc2flurry-downloads-generation
 SCRIPT_ABSOLUTE_PATH="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/$(basename "${BASH_SOURCE[0]}")"
 SCRIPT_DIR=$(dirname "$SCRIPT_ABSOLUTE_PATH")
 export PYTHONUNBUFFERED=1

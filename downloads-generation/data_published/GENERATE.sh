@@ -6,7 +6,7 @@ set -e
 set -x
 
 DOWNLOAD_NAME=data_published
-SCRATCH_DIR=${TMPDIR-/tmp}/mhcflurryii-downloads-generation
+SCRATCH_DIR=${TMPDIR-/tmp}/mhc2flurry-downloads-generation
 SCRIPT_ABSOLUTE_PATH="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/$(basename "${BASH_SOURCE[0]}")"
 SCRIPT_DIR=$(dirname "$SCRIPT_ABSOLUTE_PATH")
 
