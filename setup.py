@@ -40,7 +40,7 @@ except:
     logging.warning("Conversion of long_description from MD to RST failed")
     pass
 
-with open('mhcflurryii/version.py', 'r') as f:
+with open('mhc2flurry/version.py', 'r') as f:
     version = re.search(
         r'^__version__\s*=\s*[\'"]([^\'"]*)[\'"]',
         f.read(),
@@ -60,7 +60,7 @@ if __name__ == '__main__':
     ]
 
     setup(
-        name='mhcflurryii',
+        name='mhc2flurry',
         version=version,
         description="MHC class II Binding Predictor",
         author="Tim O'Donnell",
@@ -69,15 +69,15 @@ if __name__ == '__main__':
         license="http://www.apache.org/licenses/LICENSE-2.0.html",
         entry_points={
             'console_scripts': [
-                'mhcflurryii-downloads = mhcflurryii.downloads_command:run',
-                #'mhcflurryii-predict = mhcflurryii.predict_command:run',
-                #'mhcflurryii-predict-scan = mhcflurryii.predict_scan_command:run',
-                #'mhcflurryii-train-pan-allele-models = '
-                #    'mhcflurryii.train_pan_allele_models_command:run',
-                #'mhcflurryii-calibrate-percentile-ranks = '
-                #    'mhcflurryii.calibrate_percentile_ranks_command:run',
+                'mhc2flurry-downloads = mhc2flurry.downloads_command:run',
+                #'mhc2flurry-predict = mhc2flurry.predict_command:run',
+                #'mhc2flurry-predict-scan = mhc2flurry.predict_scan_command:run',
+                #'mhc2flurry-train-pan-allele-models = '
+                #    'mhc2flurry.train_pan_allele_models_command:run',
+                #'mhc2flurry-calibrate-percentile-ranks = '
+                #    'mhc2flurry.calibrate_percentile_ranks_command:run',
                 #'_mhcflurryii-cluster-worker-entry-point = '
-                #    'mhcflurryii.cluster_parallelism:worker_entry_point',
+                #    'mhc2flurry.cluster_parallelism:worker_entry_point',
             ]
         },
         classifiers=[
@@ -90,11 +90,11 @@ if __name__ == '__main__':
             'Topic :: Scientific/Engineering :: Bio-Informatics',
         ],
         package_data={
-            'mhcflurryii': ['downloads.yml'],
+            'mhc2flurry': ['downloads.yml'],
         },
         install_requires=required_packages,
         long_description=readme,
         packages=[
-            'mhcflurryii',
+            'mhc2flurry',
         ],
     )

@@ -62,7 +62,7 @@ def get_default_class2_models_dir(test_exists=True):
 
     If environment variable MHCFLURRYII_DEFAULT_MODELS_DIR is set to an
     absolute path, return that path. If it's set to a relative path (i.e. does
-    not start with /) then return that path taken to be relative to the mhcflurryii
+    not start with /) then return that path taken to be relative to the mhc2flurry
     downloads dir.
 
     If environment variable _MHCFLURRYII_DEFAULT_MODELS_DIR is NOT set,
@@ -152,7 +152,7 @@ def get_path(download_name, filename='', test_exists=True):
     if test_exists and not exists(path):
         raise RuntimeError(
             "Missing MHCflurryII downloadable file: %s. "
-            "To download this data, run:\n\tmhcflurryii-downloads fetch %s\n"
+            "To download this data, run:\n\tmhc2flurry-downloads fetch %s\n"
             "in a shell."
             % (quote(path), download_name))
     return path
@@ -190,7 +190,7 @@ def configure():
             # increase the version every time we make a breaking change in
             # how the data is organized. For changes to e.g. just model
             # serialization, the downloads release numbers should be used.
-            data_dir = user_data_dir("mhcflurryii", version="1")
+            data_dir = user_data_dir("mhc2flurry", version="1")
         _DOWNLOADS_DIR = join(data_dir, _CURRENT_RELEASE)
 
     logging.debug("Configured MHCFLURRYII_DOWNLOADS_DIR: %s", _DOWNLOADS_DIR)

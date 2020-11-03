@@ -4,7 +4,7 @@
 # Downloads are organized into "releases", which generally correspond with
 # MHCflurry releases of the same version.
 #
-# When users run "mhcflurryii-downloads fetch" without specifying any downloads
+# When users run "mhc2flurry-downloads fetch" without specifying any downloads
 # by name, the downloads with "default=true" are downloaded.
 
 # This should usually be the latest release.
@@ -21,14 +21,14 @@ releases:
         compatibility-version: 1
         downloads:
           - name: allele_sequences
-            url: https://github.com/openvax/mhcflurryii/releases/download/pre-0.0.1/allele_sequences.20201030.tar.bz2
+            url: https://github.com/openvax/mhc2flurry/releases/download/pre-0.0.1/allele_sequences.20201030.tar.bz2
             default: false
           - name: data_curated
-            url: https://github.com/openvax/mhcflurryii/releases/download/pre-0.0.1/data_curated.20201103.tar.bz2
+            url: https://github.com/openvax/mhc2flurry/releases/download/pre-0.0.1/data_curated.20201103.tar.bz2
             default: false
           - name: data_published
-            url: https://github.com/openvax/mhcflurryii/releases/download/pre-0.0.1/data_published.20200921.tar.bz2
+            url: https://github.com/openvax/mhc2flurry/releases/download/pre-0.0.1/data_published.20200921.tar.bz2
             default: false
           - name: data_iedb
-            url: https://github.com/openvax/mhcflurryii/releases/download/pre-0.0.1/data_iedb.20201102.tar.bz2
+            url: https://github.com/openvax/mhc2flurry/releases/download/pre-0.0.1/data_iedb.20201102.tar.bz2
             default: false

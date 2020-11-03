@@ -4,19 +4,19 @@ Download MHCflurryII released datasets and trained models.
 Examples
 
 Fetch the default downloads:
-    $ mhcflurryii-downloads fetch
+    $ mhc2flurry-downloads fetch
 
 Fetch a specific download:
-    $ mhcflurryii-downloads fetch models_class1_pan
+    $ mhc2flurry-downloads fetch models_class1_pan
 
 Get the path to a download:
-    $ mhcflurryii-downloads path models_class1_pan
+    $ mhc2flurry-downloads path models_class1_pan
 
 Get the URL of a download:
-    $ mhcflurryii-downloads url models_class1_pan
+    $ mhc2flurry-downloads url models_class1_pan
 
 Summarize available and fetched downloads:
-    $ mhcflurryii-downloads info
+    $ mhc2flurry-downloads info
 '''
 from __future__ import (
     print_function,
