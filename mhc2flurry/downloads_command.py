@@ -1,5 +1,5 @@
 '''
-Download MHCflurryII released datasets and trained models.
+Download MHC2flurry released datasets and trained models.
 
 Examples
 

@@ -1,6 +1,6 @@
 # Combined training data
 
-This download contains the data used to train the production class2 MHCflurryII models.
+This download contains the data used to train the production class2 MHC2flurry models.
 
 To generate this download run:
 

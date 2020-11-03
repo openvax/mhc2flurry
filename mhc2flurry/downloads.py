@@ -19,17 +19,17 @@ from pkg_resources import resource_string
 import pandas
 
 ENVIRONMENT_VARIABLES = [
-    "MHCFLURRYII_DATA_DIR",
-    "MHCFLURRYII_DOWNLOADS_CURRENT_RELEASE",
-    "MHCFLURRYII_DOWNLOADS_DIR",
-    "MHCFLURRYII_DEFAULT_MODELS_DIR"
+    "MHC2FLURRY_DATA_DIR",
+    "MHC2FLURRY_DOWNLOADS_CURRENT_RELEASE",
+    "MHC2FLURRY_DOWNLOADS_DIR",
+    "MHC2FLURRY_DEFAULT_MODELS_DIR"
 ]
 
 _DOWNLOADS_DIR = None
 _CURRENT_RELEASE = None
 _METADATA = None
-_MHCFLURRYII_DEFAULT_MODELS_DIR = environ.get(
-    "MHCFLURRYII_DEFAULT_MODELS_DIR")
+_MHC2FLURRY_DEFAULT_MODELS_DIR = environ.get(
+    "MHC2FLURRY_DEFAULT_MODELS_DIR")
 
 
 def get_downloads_dir():
@@ -60,12 +60,12 @@ def get_default_class2_models_dir(test_exists=True):
     """
     Return the absolute path to the default class2 models dir.
 
-    If environment variable MHCFLURRYII_DEFAULT_MODELS_DIR is set to an
+    If environment variable MHC2FLURRY_DEFAULT_MODELS_DIR is set to an
     absolute path, return that path. If it's set to a relative path (i.e. does
     not start with /) then return that path taken to be relative to the mhc2flurry
     downloads dir.
 
-    If environment variable _MHCFLURRYII_DEFAULT_MODELS_DIR is NOT set,
+    If environment variable _MHC2FLURRY_DEFAULT_MODELS_DIR is NOT set,
     then return the path to downloaded models in the "models_class2" download.
 
     Parameters
@@ -78,8 +78,8 @@ def get_default_class2_models_dir(test_exists=True):
     -------
     string : absolute path
     """
-    if _MHCFLURRYII_DEFAULT_MODELS_DIR:
-        result = join(get_downloads_dir(), _MHCFLURRYII_DEFAULT_MODELS_DIR)
+    if _MHC2FLURRY_DEFAULT_MODELS_DIR:
+        result = join(get_downloads_dir(), _MHC2FLURRY_DEFAULT_MODELS_DIR)
         if test_exists and not exists(result):
             raise IOError("No such directory: %s" % result)
         return result
@@ -130,7 +130,7 @@ def get_current_release_downloads():
 
 def get_path(download_name, filename='', test_exists=True):
     """
-    Get the local path to a file in a MHCflurryII download
+    Get the local path to a file in a MHC2flurry download
 
     Parameters
     -----------
@@ -151,7 +151,7 @@ def get_path(download_name, filename='', test_exists=True):
     path = join(get_downloads_dir(), download_name, filename)
     if test_exists and not exists(path):
         raise RuntimeError(
-            "Missing MHCflurryII downloadable file: %s. "
+            "Missing MHC2flurry downloadable file: %s. "
             "To download this data, run:\n\tmhc2flurry-downloads fetch %s\n"
             "in a shell."
             % (quote(path), download_name))
@@ -166,10 +166,10 @@ def configure():
     global _CURRENT_RELEASE
 
     _CURRENT_RELEASE = None
-    _DOWNLOADS_DIR = environ.get("MHCFLURRYII_DOWNLOADS_DIR")
+    _DOWNLOADS_DIR = environ.get("MHC2FLURRY_DOWNLOADS_DIR")
     if not _DOWNLOADS_DIR:
         metadata = get_downloads_metadata()
-        _CURRENT_RELEASE = environ.get("MHCFLURRYII_DOWNLOADS_CURRENT_RELEASE")
+        _CURRENT_RELEASE = environ.get("MHC2FLURRY_DOWNLOADS_CURRENT_RELEASE")
         if not _CURRENT_RELEASE:
             _CURRENT_RELEASE = metadata['current-release']
 
@@ -179,13 +179,13 @@ def configure():
         if current_release_compatability != current_compatability:
             logging.warning(
                 "The specified downloads are not compatible with this version "
-                "of the MHCflurryII codebase. Downloads: release %s, "
+                "of the MHC2flurry codebase. Downloads: release %s, "
                 "compatability version: %d. Code compatability version: %d",
                 _CURRENT_RELEASE,
                 current_release_compatability,
                 current_compatability)
 
-        data_dir = environ.get("MHCFLURRYII_DATA_DIR")
+        data_dir = environ.get("MHC2FLURRY_DATA_DIR")
         if not data_dir:
             # increase the version every time we make a breaking change in
             # how the data is organized. For changes to e.g. just model
@@ -193,7 +193,7 @@ def configure():
             data_dir = user_data_dir("mhc2flurry", version="1")
         _DOWNLOADS_DIR = join(data_dir, _CURRENT_RELEASE)
 
-    logging.debug("Configured MHCFLURRYII_DOWNLOADS_DIR: %s", _DOWNLOADS_DIR)
+    logging.debug("Configured MHC2FLURRY_DOWNLOADS_DIR: %s", _DOWNLOADS_DIR)
 
 
 configure()

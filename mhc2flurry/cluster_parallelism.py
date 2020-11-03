@@ -1,7 +1,7 @@
 """
 Simple, naive parallel map implementation for HPC clusters.
 
-Used for training MHCflurryII models.
+Used for training MHC2flurry models.
 """
 import traceback
 import sys

@@ -1,8 +1,8 @@
 # This file describes collections of data and trained model weights that are
-# released with MHCflurryII. We refer to these datasets as "downloads."
+# released with MHC2flurry. We refer to these datasets as "downloads."
 #
 # Downloads are organized into "releases", which generally correspond with
-# MHCflurry releases of the same version.
+# MHC2flurry releases of the same version.
 #
 # When users run "mhc2flurry-downloads fetch" without specifying any downloads
 # by name, the downloads with "default=true" are downloaded.
@@ -10,8 +10,8 @@
 # This should usually be the latest release.
 current-release: 0.0.1
 
-# An integer indicating what models the current MHCflurryII code base is compatible
-# with. Increment this integer when changes are made to MHCflurry that would break
+# An integer indicating what models the current MHC2flurry code base is compatible
+# with. Increment this integer when changes are made to MHC2flurry that would break
 # the use of previously released models.
 current-compatibility-version: 1
 
