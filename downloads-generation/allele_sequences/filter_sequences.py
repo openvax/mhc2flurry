@@ -6,7 +6,7 @@ from __future__ import print_function
 import sys
 import argparse
 
-from mhcflurryii.common import normalize_allele_name
+from mhc2flurry.common import normalize_allele_name
 
 import Bio.SeqIO  # pylint: disable=import-error
 

@@ -19,7 +19,7 @@ import json
 import collections
 from six.moves import StringIO
 
-from mhcflurryii.common import normalize_allele_name
+from mhc2flurry.common import normalize_allele_name
 
 
 import pandas

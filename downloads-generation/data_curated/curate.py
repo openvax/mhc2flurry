@@ -8,7 +8,7 @@ import argparse
 
 import pandas
 
-from mhcflurryii.common import normalize_allele_name
+from mhc2flurry.common import normalize_allele_name
 
 
 parser = argparse.ArgumentParser(usage=__doc__)
