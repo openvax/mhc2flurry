@@ -6,26 +6,9 @@ from __future__ import print_function
 import sys
 import argparse
 
-import mhcnames
+from mhcflurryii.common import normalize_allele_name
 
 import Bio.SeqIO  # pylint: disable=import-error
-
-
-def normalize(s, disallowed=["MIC", "HFE"]):
-    if any(item in s for item in disallowed):
-        return None
-    try:
-        return mhcnames.normalize_allele_name(s, infer_class2_pair=False)
-    except:
-        while s:
-            s = ":".join(s.split(":")[:-1])
-            try:
-                return mhcnames.normalize_allele_name(s, infer_class2_pair=False)
-            except:
-                pass
-
-        print("Couldn't parse", s)
-        return None
 
 
 parser = argparse.ArgumentParser(usage=__doc__)
@@ -70,8 +53,11 @@ def run():
     # Iterate longest records first so that when multiple records have the
     # same two digit normalized allele, we use the longest one.
     for record in sorted(input_records, key=lambda r: len(r.seq), reverse=True):
-        name = record.description.split()[1]
-        name = normalize(name)
+        original_name = record.description.split()[1]
+        name = normalize_allele_name(original_name)
+        if not name:
+            print("Skipping due to parsing", original_name)
+            continue
         if name in seen:
             continue
         if len(record.seq) < min_length:

@@ -8,14 +8,7 @@ import argparse
 
 import pandas
 
-import mhcnames
-
-
-def normalize_allele_name(s):
-    try:
-        return mhcnames.normalize_allele_name(s)
-    except Exception:
-        return "UNKNOWN"
+from mhcflurryii.common import normalize_allele_name
 
 
 parser = argparse.ArgumentParser(usage=__doc__)
@@ -105,8 +98,8 @@ def load_data_iedb(iedb_csv, include_qualitative=True):
 
     iedb_df["allele"] = iedb_df["Allele Name"].map(normalize_allele_name)
     print("Dropping un-parseable alleles: %s" % ", ".join(
-        iedb_df.loc[iedb_df.allele == "UNKNOWN"]["Allele Name"].unique()))
-    iedb_df = iedb_df.loc[iedb_df.allele != "UNKNOWN"]
+        iedb_df.loc[iedb_df.allele.isnull()]["Allele Name"].unique()))
+    iedb_df = iedb_df.loc[~iedb_df.allele.isnull()]
 
     print("IEDB measurements per allele:\n%s" % iedb_df.allele.value_counts())
 
@@ -192,7 +185,7 @@ def load_data_additional_ms(filename):
     print("Now", len(df))
 
     df["allele"] = df["hla"].map(normalize_allele_name)
-    assert not (df.allele == "UNKNOWN").any()
+    assert not (df.allele.isnull()).any()
     df["measurement_value"] = QUALITATIVE_TO_AFFINITY["Positive"]
     df["measurement_inequality"] = "<"
     df["measurement_type"] = "qualitative"

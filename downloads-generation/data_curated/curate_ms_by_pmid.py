@@ -19,17 +19,10 @@ import json
 import collections
 from six.moves import StringIO
 
+from mhcflurryii.common import normalize_allele_name
+
+
 import pandas
-
-import mhcnames
-
-
-def normalize_allele_name(s):
-    try:
-        return mhcnames.normalize_allele_name(s)
-    except Exception:
-        return "UNKNOWN"
-
 
 parser = argparse.ArgumentParser(usage=__doc__)
 
@@ -199,10 +192,10 @@ def handle_pmid_31495665(filename):
         "MAPTAC_B*52:01": "HLA-B*52:01",
         "MAPTAC_C*03:03": "HLA-C*03:03",
         "MAPTAC_C*06:02": "HLA-C*06:02",
-        "MAPTAC_DPB1*06:01/DPA1*01:03_dm+": "HLA-DPB1*06:01-DPA1*01:03",
-        "MAPTAC_DPB1*06:01/DPA1*01:03_dm-": "HLA-DPB1*06:01-DPA1*01:03",
-        "MAPTAC_DQB1*06:04/DQA1*01:02_dm+": "HLA-DQB1*06:04-DQA1*01:02",
-        "MAPTAC_DQB1*06:04/DQA1*01:02_dm-": "HLA-DQB1*06:04-DQA1*01:02",
+        "MAPTAC_DPB1*06:01/DPA1*01:03_dm+": "HLA-DPA1*01:03-DPB1*06:01",
+        "MAPTAC_DPB1*06:01/DPA1*01:03_dm-": "HLA-DPA1*01:03-DPB1*06:01",
+        "MAPTAC_DQB1*06:04/DQA1*01:02_dm+": "HLA-DQA1*01:02-DQB1*06:04",
+        "MAPTAC_DQB1*06:04/DQA1*01:02_dm-": "HLA-DQA1*01:02-DQB1*06:04",
         "MAPTAC_DRB1*01:01": "HLA-DRA1*01:01-DRB1*01:01",
         "MAPTAC_DRB1*03:01": "HLA-DRA1*01:01-DRB1*03:01",
         "MAPTAC_DRB1*04:01": "HLA-DRA1*01:01-DRB1*04:01",
@@ -812,7 +805,12 @@ def run():
 
     ms_df = pandas.concat(ms_dfs, ignore_index=True, sort=False)
     ms_df["cell_line"] = ms_df["cell_line"].fillna("")
-    ms_df["hla"] = ms_df["hla"].str.strip().str.replace(r'\s+', ' ')
+    ms_df["hla"] = ms_df["hla"].str.strip().str.replace(r'\s+', ' ').map(
+        lambda hla: " ".join(
+            [
+                normalize_allele_name(a, raise_on_error=True)
+                for a in hla.split()
+            ]))
 
     sample_table = ms_df[
         ["sample_id", "pmid", "expression_dataset", "cell_line", "sample_type"]

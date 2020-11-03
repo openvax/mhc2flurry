@@ -33,10 +33,9 @@ cp $SCRIPT_DIR/make_allele_sequences.py .
 cp $SCRIPT_DIR/filter_sequences.py .
 cp $SCRIPT_ABSOLUTE_PATH .
 
-# Human
-
-# Alpha chain
-mkdir alpha
+######## Human
+# Human Alpha chain
+mkdir -p alpha
 cd alpha
 wget -q ftp://ftp.ebi.ac.uk/pub/databases/ipd/imgt/hla/fasta/DPA1_prot.fasta
 wget -q ftp://ftp.ebi.ac.uk/pub/databases/ipd/imgt/hla/fasta/DPA2_prot.fasta
@@ -45,8 +44,8 @@ wget -q ftp://ftp.ebi.ac.uk/pub/databases/ipd/imgt/hla/fasta/DQA2_prot.fasta
 wget -q ftp://ftp.ebi.ac.uk/pub/databases/ipd/imgt/hla/fasta/DRA_prot.fasta
 cd ..
 
-# Beta chain
-mkdir beta
+# Human Beta chain
+mkdir -p beta
 cd beta
 wget -q ftp://ftp.ebi.ac.uk/pub/databases/ipd/imgt/hla/fasta/DPB1_prot.fasta
 wget -q ftp://ftp.ebi.ac.uk/pub/databases/ipd/imgt/hla/fasta/DPB2_prot.fasta
@@ -54,32 +53,60 @@ wget -q ftp://ftp.ebi.ac.uk/pub/databases/ipd/imgt/hla/fasta/DQB1_prot.fasta
 wget -q ftp://ftp.ebi.ac.uk/pub/databases/ipd/imgt/hla/fasta/DRB_prot.fasta
 cd ..
 
+######## MOUSE
+#
+# See http://www.imgt.org/IMGTrepertoireMH/Proteins/tables/index.php?species=mouse&gene=MH2-AB
+#
+#
+# Mouse Alpha chain: TODO
+#
+# Mouse Beta chain: H-2-AB alleles
+# Commented out for now until we have A-2-AA sequences
+#mkdir -p beta
+#cd beta
+#wget -q https://www.uniprot.org/uniprot/P14483.fasta  # MH2-AB*01
+#wget -q https://www.uniprot.org/uniprot/P01921.fasta  # MH2-AB*03
+#wget -q https://www.uniprot.org/uniprot/Q31135.fasta  # MH2-AB*06
+#wget -q https://www.uniprot.org/uniprot/O78197.fasta  # MH2-AB*10
+#wget -q https://www.uniprot.org/uniprot/O62867.fasta  # MH2-AB*12
+#wget -q https://www.uniprot.org/uniprot/P06342.fasta  # MH2-AB*13
+#wget -q https://www.uniprot.org/uniprot/O78197.fasta  # MH2-AB*10
+#wget -q https://www.uniprot.org/uniprot/O62867.fasta  # MH2-AB*12
+#wget -q https://www.uniprot.org/uniprot/P06342.fasta  # MH2-AB*13
+#wget -q https://www.uniprot.org/uniprot/P06343.fasta  # MH2-AB*14
+#wget -q https://www.uniprot.org/uniprot/Q31184.fasta  # MH2-AB*15
+#wget -q https://www.uniprot.org/uniprot/Q31131.fasta  # MH2-AB*16
+#wget -q https://www.uniprot.org/uniprot/P06345.fasta  # MH2-AB*17
+#wget -q https://www.uniprot.org/uniprot/P06346.fasta  # MH2-AB*20
+#wget -q https://www.uniprot.org/uniprot/O19470.fasta  # MH2-AB*22
+
+
 python filter_sequences.py alpha/*.fasta --kind alpha --out alpha.fasta
 python filter_sequences.py beta/*.fasta --kind beta --out beta.fasta
 
-time clustalo -i alpha.fasta -o alpha.aligned.fasta
-time clustalo -i beta.fasta -o beta.aligned.fasta
+time clustalo -i "$(pwd)/alpha.fasta" -o "$(pwd)/alpha.aligned.fasta"
+time clustalo -i "$(pwd)/beta.fasta" -o "$(pwd)/beta.aligned.fasta"
 
 time python make_allele_sequences.py \
-    alpha.aligned.fasta \
-    --reference-allele HLA-DRA1*01:01 \
-    --out-csv alpha.csv
+    "$(pwd)/alpha.aligned.fasta" \
+    --reference-allele HLA-DRA*01:01 \
+    --out-csv "$(pwd)/alpha.csv"
 
 time python make_allele_sequences.py \
-    beta.aligned.fasta \
+    "$(pwd)/beta.aligned.fasta" \
     --reference-allele HLA-DRB1*01:01 \
-    --out-csv beta.csv
+    --out-csv "$(pwd)/beta.csv"
+
+time python make_allele_sequences.py \
+    "$(pwd)/alpha.aligned.fasta" \
+    "$(pwd)/beta.aligned.fasta" \
+    --out-csv "$(pwd)/all.csv"
 
 # Cleanup
 gzip -f alpha.fasta
 gzip -f alpha.aligned.fasta
 gzip -f beta.fasta
 gzip -f beta.aligned.fasta
-
-for i in $(ls "*/*.fasta")
-do
-    gzip -f $i
-done
 
 cp $SCRIPT_ABSOLUTE_PATH .
 bzip2 LOG.txt
