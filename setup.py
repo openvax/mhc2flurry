@@ -65,7 +65,7 @@ if __name__ == '__main__':
         description="MHC class II Binding Predictor",
         author="Tim O'Donnell",
         author_email="timodonnell@gmail.com",
-        url="https://github.com/openvax/mhcflurryii",
+        url="https://github.com/openvax/mhc2flurry",
         license="http://www.apache.org/licenses/LICENSE-2.0.html",
         entry_points={
             'console_scripts': [
@@ -76,7 +76,7 @@ if __name__ == '__main__':
                 #    'mhc2flurry.train_pan_allele_models_command:run',
                 #'mhc2flurry-calibrate-percentile-ranks = '
                 #    'mhc2flurry.calibrate_percentile_ranks_command:run',
-                #'_mhcflurryii-cluster-worker-entry-point = '
+                #'_mhc2flurry-cluster-worker-entry-point = '
                 #    'mhc2flurry.cluster_parallelism:worker_entry_point',
             ]
         },
