@@ -1,5 +1,5 @@
 """
-Utilities used in MHCflurry unit tests.
+Utilities used in MHC2flurry unit tests.
 """
 from .common import configure_tensorflow
 
@@ -16,4 +16,5 @@ def cleanup():
     Clear tensorflow session and other process-wide resources.
     """
     import tensorflow.keras.backend as K
+    #Class2NeuralNetwork.clear_model_cache()
     K.clear_session()

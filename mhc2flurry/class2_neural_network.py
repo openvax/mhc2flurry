@@ -11,11 +11,11 @@ import math
 import numpy
 import pandas
 
-from mhcflurry.regression_target import to_ic50, from_ic50
-from mhc2flurry.common import configure_tensorflow
-from mhcflurry.custom_loss import get_loss
-from mhcflurry.data_dependent_weights_initialization import lsuv_init
-from mhcflurry.random_negative_peptides import RandomNegativePeptides
+from .regression_target import to_ic50, from_ic50
+from .common import configure_tensorflow
+from .custom_loss import get_loss
+from .data_dependent_weights_initialization import lsuv_init
+from .random_negative_peptides import RandomNegativePeptides
 
 from .hyperparameters import HyperparameterDefaults
 from .encodable_sequences import EncodableSequences, EncodingError
