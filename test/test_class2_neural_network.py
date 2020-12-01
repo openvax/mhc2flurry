@@ -56,21 +56,21 @@ def make_allele_encoding_pair(allele_names):
 
 def test_memorize():
     train_df = pandas.DataFrame(
-        {"peptide": random_peptides(100000, length=15)}
+        {"peptide": random_peptides(200000, length=15)}
     ).set_index("peptide")
-    train_df["HLA-DRB*01:01"] = 20000
-    train_df["HLA-DRB*03:01"] = 20000
+    train_df["HLA-DRB*01:01"] = 0
+    train_df["HLA-DRB*03:01"] = 0
 
     # Each allele binds peptides matching some regex
     train_df.loc[
-        train_df.index.str.match("A.K"), "HLA-DRB*01:01"
-    ] = 50.0
+        train_df.index.str.contains("A.K"), "HLA-DRB*01:01"
+    ] = 1.0
     train_df.loc[
-        train_df.index.str.match("Q.Q"), "HLA-DRB*03:01"
-    ] = 50.0
+        train_df.index.str.contains("Q.Q"), "HLA-DRB*03:01"
+    ] = 1.0
 
     # Resample to have 1:1 binder / non-binder
-    positive_train_df = train_df.loc[train_df.min(1) < 500]
+    positive_train_df = train_df.loc[train_df.max(1) > 0.8]
     train_df = pandas.concat([
         positive_train_df,
         train_df.loc[~train_df.index.isin(positive_train_df.index)].sample(
@@ -78,10 +78,10 @@ def test_memorize():
         ])
 
     print("Binders")
-    print((train_df < 500).sum())
+    print((train_df > 0.8).sum())
 
     print("Binder rate")
-    print((train_df < 500).mean())
+    print((train_df > 0.8).mean())
 
     stacked = train_df.stack().reset_index()
     stacked.columns = ['peptide', 'allele', 'measurement_value']
@@ -89,13 +89,12 @@ def test_memorize():
     # Memorize the dataset.
     allele_encoding = make_allele_encoding_pair(stacked.allele)
     model = Class2NeuralNetwork(
-        random_negative_rate=1.0,
+        random_negative_rate=0.0,  # setting this >0 seems to fail - why?
         layer_sizes=[8],
+        allele_positionwise_embedding_size=2,
         patience=5,
         peptide_convolutions=[
             {'kernel_size': 3, 'filters': 8, 'activation': "relu"},
-            #{'kernel_size': 1, 'filters': 4, 'activation': "relu"},
-            #{'kernel_size': 4, 'filters': 4, 'activation': "relu"},
         ],
     )
     print(model.hyperparameters)
@@ -110,8 +109,8 @@ def test_memorize():
         stacked.peptide, allele_encoding_pair=allele_encoding)
 
     # Overall AUC
-    stacked["binder"] = stacked.measurement_value < 500
-    auc = roc_auc_score(stacked.binder, -stacked.prediction)
+    stacked["binder"] = stacked.measurement_value > 0.8
+    auc = roc_auc_score(stacked.binder, stacked.prediction)
     print("Overall AUC", auc)
     yield assert_greater, auc, 0.8
 
@@ -122,7 +121,7 @@ def test_memorize():
     for (allele, sub_df) in stacked_binders.groupby("allele"):
         print(allele)
         print(sub_df)
-        auc = roc_auc_score(sub_df.binder, -sub_df.prediction)
+        auc = roc_auc_score(sub_df.binder, sub_df.prediction)
         allele_specific_aucs.append((allele, auc))
         yield assert_greater, auc, 0.8
 

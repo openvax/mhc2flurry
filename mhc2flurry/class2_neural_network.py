@@ -85,8 +85,8 @@ class Class2NeuralNetwork(object):
         early_stopping=True,
         minibatch_size=128,
         data_dependent_initialization_method=None,
-        random_negative_affinity_min=20000.0,
-        random_negative_affinity_max=50000.0,
+        random_negative_affinity_min=0.0,
+        random_negative_affinity_max=0.2,
         random_negative_output_indices=None).extend(
             RandomNegativePeptides.hyperparameter_defaults)
     """
@@ -559,8 +559,7 @@ class Class2NeuralNetwork(object):
         if validation_output_indices is not None:
             encode_y_kwargs["output_indices"] = validation_output_indices
 
-        output = loss.encode_y(
-            from_ic50(validation_affinities), **encode_y_kwargs)
+        output = loss.encode_y((validation_affinities), **encode_y_kwargs)
 
         validation_y_dict = {
             'output': output,
@@ -579,7 +578,7 @@ class Class2NeuralNetwork(object):
                     'allele': allele_encoding_input,
                 }
                 y_dict = {
-                    'output': from_ic50(affinities)
+                    'output': affinities,
                 }
                 yield (x_dict, y_dict)
                 mutable_generator_state['yielded_values'] += len(affinities)
@@ -746,19 +745,11 @@ class Class2NeuralNetwork(object):
                 random_negatives_planner.get_alleles())
         num_random_negatives = random_negatives_planner.get_total_count()
 
-        y_values = from_ic50(numpy.array(affinities, copy=False))
+        y_values = numpy.array(affinities, copy=False)
         assert numpy.isnan(y_values).sum() == 0, y_values
-        if inequalities is not None:
-            # Reverse inequalities because from_ic50() flips the direction
-            # (i.e. lower affinity results in higher y values).
-            adjusted_inequalities = pandas.Series(inequalities).map({
-                "=": "=",
-                ">": "<",
-                "<": ">",
-            }).values
-        else:
-            adjusted_inequalities = numpy.tile("=", len(y_values))
-        if len(adjusted_inequalities) != len(y_values):
+        if inequalities is None:
+            inequalities = numpy.tile("=", len(y_values))
+        if len(inequalities) != len(y_values):
             raise ValueError("Inequalities and y_values must have same length")
 
         x_dict_without_random_negatives = {
@@ -788,7 +779,7 @@ class Class2NeuralNetwork(object):
         y_values = y_values[shuffle_permutation]
         assert numpy.isnan(y_values).sum() == 0, y_values
         peptide_encoding = peptide_encoding[shuffle_permutation]
-        adjusted_inequalities = adjusted_inequalities[shuffle_permutation]
+        inequalities = inequalities[shuffle_permutation]
         for key in x_dict_without_random_negatives:
             x_dict_without_random_negatives[key] = (
                 x_dict_without_random_negatives[key][shuffle_permutation])
@@ -804,7 +795,7 @@ class Class2NeuralNetwork(object):
         loss = get_loss(self.hyperparameters['loss'])
 
         if not loss.supports_inequalities and (
-                any(inequality != "=" for inequality in adjusted_inequalities)):
+                any(inequality != "=" for inequality in inequalities)):
             raise ValueError("Loss %s does not support inequalities" % loss)
 
         if (not loss.supports_multiple_outputs and output_indices is not None
@@ -841,10 +832,9 @@ class Class2NeuralNetwork(object):
 
         if loss.supports_inequalities:
             # Do not sample negative affinities: just use an inequality.
-            random_negative_ic50 = self.hyperparameters[
-                'random_negative_affinity_min'
+            random_negative_target = self.hyperparameters[
+                'random_negative_affinity_max'
             ]
-            random_negative_target = from_ic50(random_negative_ic50)
 
             y_dict_with_random_negatives = {
                 "output": numpy.concatenate([
@@ -853,21 +843,18 @@ class Class2NeuralNetwork(object):
                     y_values,
                 ]),
             }
-            # Note: we are using "<" here not ">" because the inequalities are
-            # now in target-space (0-1) not affinity-space.
             adjusted_inequalities_with_random_negatives = (
-                ["<"] * num_random_negatives + list(adjusted_inequalities))
+                [">"] * num_random_negatives + list(inequalities))
         else:
             # Randomly sample random negative affinities
             y_dict_with_random_negatives = {
                 "output": numpy.concatenate([
-                    from_ic50(
-                        numpy.random.uniform(
-                            self.hyperparameters[
-                                'random_negative_affinity_min'],
-                            self.hyperparameters[
-                                'random_negative_affinity_max'],
-                            num_random_negatives)),
+                    numpy.random.uniform(
+                        self.hyperparameters[
+                            'random_negative_affinity_min'],
+                        self.hyperparameters[
+                            'random_negative_affinity_max'],
+                        num_random_negatives),
                     y_values,
                 ]),
             }
@@ -1054,14 +1041,9 @@ class Class2NeuralNetwork(object):
 
         batch_size : int
             batch_size passed to Keras
-
-        output_index : int or None
-            For multi-output models. Gives the output index to return. If set to
-            None, then all outputs are returned as a samples x outputs matrix.
-
         Returns
         -------
-        numpy.array of nM affinity predictions 
+        numpy.array of affinity predictions
         """
 
         x_dict = {
@@ -1083,12 +1065,10 @@ class Class2NeuralNetwork(object):
             network = self.network()
         else:
             network = self.network(borrow=True)
-        raw_predictions = network.predict(x_dict, batch_size=batch_size)
-        predictions = numpy.array(raw_predictions, dtype = "float64")
+        predictions = network.predict(x_dict, batch_size=batch_size)
         if output_index is not None:
-            predictions = predictions[:,output_index]
-        result = to_ic50(predictions)
-        return result
+            predictions = predictions[output_index]
+        return numpy.array(predictions, dtype="float64")
 
     @classmethod
     def merge(cls, models, merge_method="average"):
@@ -1255,7 +1235,7 @@ class Class2NeuralNetwork(object):
             alpha_allele_representations=None,
             beta_allele_representations=None):
         """
-        Helper function to make a keras network for class 1 affinity prediction.
+        Helper function to make a keras network for class 2 affinity prediction.
         """
 
         # We import keras here to avoid tensorflow debug output, etc. unless we
@@ -1289,6 +1269,8 @@ class Class2NeuralNetwork(object):
             name="peptide_first_convolution",
             padding="same",
             **first_peptide_convolution)(current_layer)
+
+        outputs = []
 
         if alpha_allele_representations is not None:
             assert beta_allele_representations is not None
@@ -1353,7 +1335,9 @@ class Class2NeuralNetwork(object):
                 first_peptide_convolution['filters'],
                 name="allele_dense_final",
                 kernel_regularizer=kernel_regularizer,
-                activation="sigmoid")(allele_layer)
+                activation="relu")(allele_layer)
+
+            outputs.append(allele_layer)
 
             # Elementwise multiply by peptide convolution
             current_layer = keras.layers.Multiply(
@@ -1414,9 +1398,10 @@ class Class2NeuralNetwork(object):
             kernel_initializer=init,
             activation=output_activation,
             name="output")(current_layer)
+        outputs.insert(0, output)
         model = keras.models.Model(
             inputs=inputs,
-            outputs=[output],
+            outputs=outputs,
             name="predictor")
 
         return model
