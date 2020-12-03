@@ -27,17 +27,7 @@ teardown = cleanup
 setup = startup
 
 
-# Fake pseudosequences
-ALPHA_SEQUENCES = {
-    "HLA-DRA*01:01": "AAAN",
-}
-BETA_SEQUENCES = {
-    "HLA-DRB1*01:01": "AAAQ",
-    "HLA-DRB1*03:01": "AAAK",
-}
-
-
-def make_allele_encoding_pair(allele_names):
+def make_allele_encoding_pair(allele_names, alpha_sequences, beta_sequences):
     """
     Given a list of allele names, return an AlleleEncodingPair
     """
@@ -48,55 +38,134 @@ def make_allele_encoding_pair(allele_names):
     alpha = parsed_alleles.map(lambda p: p.alpha.to_string())
     beta = parsed_alleles.map(lambda p: p.beta.to_string())
     encoding = AlleleEncodingPair(
-        AlleleEncoding(alpha, allele_to_sequence=ALPHA_SEQUENCES),
-        AlleleEncoding(beta, allele_to_sequence=BETA_SEQUENCES),
+        AlleleEncoding(alpha, allele_to_sequence=alpha_sequences),
+        AlleleEncoding(beta, allele_to_sequence=beta_sequences),
     )
     return encoding
 
 
-def test_memorize():
-    train_df = pandas.DataFrame(
+def Xtest_simple():
+    # Fake pseudosequences
+    alpha_sequences = {
+        "HLA-DRA*01:01": "AAAN",
+    }
+    beta_sequences = {
+        "HLA-DRB1*01:01": "AAAQ",
+        "HLA-DRB1*03:01": "AAAK",
+    }
+    motifs = {
+        "HLA-DRB1*01:01": "A.K",
+        "HLA-DRB1*03:01": "Q.Q",
+    }
+
+    df = pandas.DataFrame(
         {"peptide": random_peptides(200000, length=15)}
     ).set_index("peptide")
-    train_df["HLA-DRB*01:01"] = 0
-    train_df["HLA-DRB*03:01"] = 0
 
-    # Each allele binds peptides matching some regex
-    train_df.loc[
-        train_df.index.str.contains("A.K"), "HLA-DRB*01:01"
-    ] = 1.0
-    train_df.loc[
-        train_df.index.str.contains("Q.Q"), "HLA-DRB*03:01"
-    ] = 1.0
+    for (allele, motif) in motifs.items():
+        df[allele] = (df.index.str.contains(motif)).astype(int)
 
     # Resample to have 1:1 binder / non-binder
-    positive_train_df = train_df.loc[train_df.max(1) > 0.8]
+    positive_train_df = df.loc[df.max(1) > 0.8]
     train_df = pandas.concat([
         positive_train_df,
-        train_df.loc[~train_df.index.isin(positive_train_df.index)].sample(
+        df.loc[~df.index.isin(positive_train_df.index)].sample(
             n=len(positive_train_df))
         ])
 
-    print("Binders")
-    print((train_df > 0.8).sum())
-
-    print("Binder rate")
-    print((train_df > 0.8).mean())
-
-    stacked = train_df.stack().reset_index()
-    stacked.columns = ['peptide', 'allele', 'measurement_value']
-
-    # Memorize the dataset.
-    allele_encoding = make_allele_encoding_pair(stacked.allele)
     model = Class2NeuralNetwork(
-        random_negative_rate=0.0,  # setting this >0 seems to fail - why?
-        layer_sizes=[8],
-        allele_positionwise_embedding_size=2,
+        random_negative_rate=0.2,
+        layer_sizes=[4],
+        allele_positionwise_embedding_size=4,
         patience=5,
         peptide_convolutions=[
-            {'kernel_size': 3, 'filters': 8, 'activation': "relu"},
+            {'kernel_size': 3, 'filters': 2, 'activation': "relu"},
         ],
+        peptide_encoding={
+            'vector_encoding_name': 'BLOSUM62',
+            'alignment_method': 'right_pad',
+            'max_length': 20,
+        },
     )
+
+    yield from train_and_check(train_df, model, alpha_sequences, beta_sequences)
+
+
+def test_combination():
+    # Can we generalize to an unseen allele?
+
+    # Fake pseudosequences
+    alpha_sequences = {
+        "HLA-DRA*01:01": "AAAN",
+    }
+    beta_sequences = {
+        "HLA-DRB1*01:01": "AAAA",
+        "HLA-DRB1*03:01": "CAAA",
+        "HLA-DRB1*04:01": "AAAC",
+        "HLA-DRB1*05:01": "CAAC",
+    }
+    motifs = {
+        "HLA-DRB1*01:01": "K.KK",
+        "HLA-DRB1*03:01": "Q.KK",
+        "HLA-DRB1*04:01": "K.KQ",
+        "HLA-DRB1*05:01": "Q.KQ",
+    }
+
+    df = pandas.DataFrame(
+        {"peptide": random_peptides(500000, length=15)}
+    ).set_index("peptide")
+
+    for (allele, motif) in motifs.items():
+        df[allele] = (df.index.str.contains(motif)).astype(int)
+
+    # Resample to have 1:1 binder / non-binder
+    positive_train_df = df.loc[df.max(1) > 0.8]
+    df = pandas.concat([
+        positive_train_df,
+        df.loc[~df.index.isin(positive_train_df.index)].sample(
+            n=int(len(positive_train_df) / df.shape[1]))
+    ])
+
+    model = Class2NeuralNetwork(
+        random_negative_rate=0.0,
+        layer_sizes=[4],
+        allele_positionwise_embedding_size=4,
+        patience=10,
+        peptide_convolutions=[
+            {'kernel_size': 4, 'filters': 4, 'activation': "relu"},
+        ],
+        max_epochs=300,
+        peptide_encoding={
+            'vector_encoding_name': 'BLOSUM62',
+            'alignment_method': 'right_pad',
+            'max_length': 15,
+        },
+    )
+
+    train_df = df.sample(frac=0.8).copy()
+    train_df["HLA-DRB1*05:01"] = numpy.nan
+
+    yield from train_and_check(
+        df, model, alpha_sequences, beta_sequences, train_df=train_df)
+
+
+def train_and_check(df, model, alpha_sequences, beta_sequences, train_df=None):
+    print("Binders")
+    print((df > 0.8).sum())
+
+    print("Binder rate")
+    print((df > 0.8).mean())
+
+    if train_df is None:
+        train_df = df.sample(frac=0.5)
+    test_df = df.loc[~df.index.isin(train_df.index)]
+
+    stacked = train_df.stack().reset_index().dropna()
+    stacked.columns = ['peptide', 'allele', 'measurement_value']
+
+    allele_encoding = make_allele_encoding_pair(
+        stacked.allele, alpha_sequences, beta_sequences)
+
     print(model.hyperparameters)
 
     model.fit(
@@ -105,13 +174,25 @@ def test_memorize():
         allele_encoding_pair=allele_encoding
     )
 
-    stacked["prediction"] = model.predict(
+    yield from check_accuracy(
+        train_df, model, alpha_sequences, beta_sequences, message="TRAIN")
+    yield from check_accuracy(
+        test_df, model, alpha_sequences, beta_sequences, message="TEST")
+
+
+def check_accuracy(df, network, alpha_sequences, beta_sequences, message=""):
+    stacked = df.stack().reset_index().dropna()
+    stacked.columns = ['peptide', 'allele', 'measurement_value']
+
+    allele_encoding = make_allele_encoding_pair(
+        stacked.allele, alpha_sequences, beta_sequences)
+    stacked["prediction"] = network.predict(
         stacked.peptide, allele_encoding_pair=allele_encoding)
 
     # Overall AUC
     stacked["binder"] = stacked.measurement_value > 0.8
     auc = roc_auc_score(stacked.binder, stacked.prediction)
-    print("Overall AUC", auc)
+    print(message, "Overall AUC", auc)
     yield assert_greater, auc, 0.8
 
     # Can we discern a binder for one allele from another?
@@ -127,8 +208,9 @@ def test_memorize():
 
     allele_specific_aucs = pandas.DataFrame(
         allele_specific_aucs, columns=["allele", "auc"])
-    print("Allele specific AUCs:")
+    print(message, "allele specific AUCs:")
     print(allele_specific_aucs)
+
 
     #import ipdb ; ipdb.set_trace()
 
