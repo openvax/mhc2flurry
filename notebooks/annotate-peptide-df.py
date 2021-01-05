@@ -40,6 +40,11 @@ parser.add_argument(
     default='',
     help='Desired path to output CSV, will contain input dataframe with additional column denoting '
          'transcript IDs')
+parser.add_argument(
+    '--output-transcript-fasta',
+    default='',
+    help='Desired path to output transcript FASTA, will contain sequences for all transcripts '
+         'found to match any sequence in the input')
 
 
 def generate_all_transcript_sequences(genome):
@@ -100,7 +105,7 @@ def get_matching_transcript_ids(peptide, fm):
     """
     docs = fm.search(peptide)
     ids = [doc.text.split('|')[0] for doc in docs]
-    return ','.join(ids)
+    return ' '.join(ids)
 
 
 def main(args_list=None):
@@ -127,7 +132,22 @@ def main(args_list=None):
     df.to_csv(args.output_csv, index=False)
     end = time.time()
     logger.info('Done writing CSV, took %.1f minutes' % ((end - start)/60))
-    
+
+    # write out FASTA with all transcript sequences occurring here
+    logger.info('Creating FASTA with transcript sequences...')
+    all_transcripts = set()
+    for transcripts in df['transcripts']:
+        all_transcripts.update(transcripts.split(' '))
+
+    with open(args.output_transcript_fasta, 'w') as f:
+        for transcript in all_transcripts:
+            doc = fm.search(transcript)
+            if len(doc) != 1:
+                logger.warning('More than one record matching transcript %s' % transcript)
+            transcript_id, sequence = doc[0].text.split('|')
+            f.write('>%s\n%s\n' % (transcript_id, sequence))
+    logger.info('Done.')
+
 
 if __name__ == '__main__':
     main()
