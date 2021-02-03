@@ -25,6 +25,15 @@ cd $SCRATCH_DIR/$DOWNLOAD_NAME
 wget -q https://www.iedb.org/downloader.php?file_name=doc/mhc_ligand_full_single_file.zip -O mhc_ligand_full.zip
 wget -q http://www.iedb.org/downloader.php?file_name=doc/tcell_full_v3.zip -O tcell_full_v3.zip
 
+# We also download Uniprot viral sequences.
+#
+# UniprotKB search:
+#    proteome:(excluded:no taxonomy:"Viruses [10239]") host:"Homo sapiens (Human) [9606]"
+# link to human readable:
+# https://www.uniprot.org/uniprot/?query=proteome%3A%28excluded%3Ano+taxonomy%3A%22Viruses+%5B10239%5D%22%29+AND+host%3A%22Homo+sapiens+%28Human%29+%5B9606%5D%22&sort=score
+wget 'https://www.uniprot.org/uniprot/?query=proteome:(excluded:no%20taxonomy:%22Viruses%20[10239]%22)%20AND%20host:%22Homo%20sapiens%20(Human)%20[9606]%22&format=fasta&sort=score' -O viruses.uniprot.fasta
+gzip viruses.uniprot.fasta
+
 unzip mhc_ligand_full.zip
 rm mhc_ligand_full.zip
 bzip2 mhc_ligand_full.csv

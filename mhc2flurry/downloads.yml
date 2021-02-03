@@ -30,5 +30,5 @@ releases:
             url: https://github.com/openvax/mhc2flurry/releases/download/pre-0.0.1/data_published.20200921.tar.bz2
             default: false
           - name: data_iedb
-            url: https://github.com/openvax/mhc2flurry/releases/download/pre-0.0.1/data_iedb.20201102.tar.bz2
+            url: https://github.com/openvax/mhc2flurry/releases/download/pre-0.0.1/data_iedb.20210203.tar.bz2
             default: false

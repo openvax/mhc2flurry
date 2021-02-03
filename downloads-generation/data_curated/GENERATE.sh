@@ -13,6 +13,10 @@ SCRIPT_ABSOLUTE_PATH="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/$(basename "
 SCRIPT_DIR=$(dirname "$SCRIPT_ABSOLUTE_PATH")
 export PYTHONUNBUFFERED=1
 
+# Check that needed downloads are available.
+mhc2flurry-downloads path data_published
+mhc2flurry-downloads path data_iedb
+
 mkdir -p "$SCRATCH_DIR"
 rm -rf "$SCRATCH_DIR/$DOWNLOAD_NAME"
 mkdir "$SCRATCH_DIR/$DOWNLOAD_NAME"

@@ -83,34 +83,41 @@ def debug(*filenames):
 
 
 PMID_31495665_SAMPLE_TYPES = {
-        "HLA-DR_Lung": "lung",
-        "HLA-DR_PBMC_HDSC": "pbmc",
-        "HLA-DR_PBMC_RG1095": "pbmc",
-        "HLA-DR_PBMC_RG1104": "pbmc",
-        "HLA-DR_PBMC_RG1248": "pbmc",
-        "HLA-DR_Spleen": "spleen",
-        "MAPTAC_A*02:01": "mix:a375,expi293,hek293,hela",
-        "MAPTAC_A*11:01": "mix:expi293,hela",
-        "MAPTAC_A*32:01": "mix:a375,expi293,hela",
-        "MAPTAC_B*07:02": "mix:a375,expi293,hela",
-        "MAPTAC_B*45:01": "expi293",
-        "MAPTAC_B*52:01": "mix:a375,expi293",
-        "MAPTAC_C*03:03": "expi293",
-        "MAPTAC_C*06:02": "mix:a375,expi293",
-        "MAPTAC_DPB1*06:01/DPA1*01:03_dm+": "expi293",
-        "MAPTAC_DPB1*06:01/DPA1*01:03_dm-": "expi293",
-        "MAPTAC_DQB1*06:04/DQA1*01:02_dm+": "expi293",
-        "MAPTAC_DQB1*06:04/DQA1*01:02_dm-": "expi293",
-        "MAPTAC_DRB1*01:01": "mix:a375,b721,expi293,kg1,k562",
-        "MAPTAC_DRB1*03:01": "expi293",
-        "MAPTAC_DRB1*04:01": "expi293",
-        "MAPTAC_DRB1*07:01": "mix:expi293,hek293",
-        "MAPTAC_DRB1*11:01": "mix:expi293,k562,kg1",
-        "MAPTAC_DRB1*12:01_dm+": "expi293",
-        "MAPTAC_DRB1*12:01_dm-": "expi293",
-        "MAPTAC_DRB1*15:01": "expi293",
-        "MAPTAC_DRB3*01:01_dm+": "expi293",
-        "MAPTAC_DRB3*01:01_dm-": "expi293",
+    "HLA-DR_A375": "A375",
+    "HLA-DR_Lung": "lung",
+    "HLA-DR_PBMC_HDSC": "pbmc",
+    "HLA-DR_PBMC_RG1095": "pbmc",
+    "HLA-DR_PBMC_RG1104": "pbmc",
+    "HLA-DR_PBMC_RG1248": "pbmc",
+    "HLA-DR_SILAC_Donor1_10minLysate": "pbmc",
+    "HLA-DR_SILAC_Donor1_5hrLysate": "pbmc",
+    "HLA-DR_SILAC_Donor1_DConly": "pbmc",
+    "HLA-DR_SILAC_Donor1_UVovernight": "pbmc",
+    "HLA-DR_SILAC_Donor2_DC_UV_16hr": "pbmc",
+    "HLA-DR_SILAC_Donor2_DC_UV_24hr": "pbmc",
+    "HLA-DR_Spleen": "spleen",
+    "MAPTAC_A*02:01": "mix:a375,expi293,hek293,hela",
+    "MAPTAC_A*11:01": "mix:expi293,hela",
+    "MAPTAC_A*32:01": "mix:a375,expi293,hela",
+    "MAPTAC_B*07:02": "mix:a375,expi293,hela",
+    "MAPTAC_B*45:01": "expi293",
+    "MAPTAC_B*52:01": "mix:a375,expi293",
+    "MAPTAC_C*03:03": "expi293",
+    "MAPTAC_C*06:02": "mix:a375,expi293",
+    "MAPTAC_DPB1*06:01/DPA1*01:03_dm+": "expi293",
+    "MAPTAC_DPB1*06:01/DPA1*01:03_dm-": "expi293",
+    "MAPTAC_DQB1*06:04/DQA1*01:02_dm+": "expi293",
+    "MAPTAC_DQB1*06:04/DQA1*01:02_dm-": "expi293",
+    "MAPTAC_DRB1*01:01": "mix:a375,b721,expi293,kg1,k562",
+    "MAPTAC_DRB1*03:01": "expi293",
+    "MAPTAC_DRB1*04:01": "expi293",
+    "MAPTAC_DRB1*07:01": "mix:expi293,hek293",
+    "MAPTAC_DRB1*11:01": "mix:expi293,k562,kg1",
+    "MAPTAC_DRB1*12:01_dm+": "expi293",
+    "MAPTAC_DRB1*12:01_dm-": "expi293",
+    "MAPTAC_DRB1*15:01": "expi293",
+    "MAPTAC_DRB3*01:01_dm+": "expi293",
+    "MAPTAC_DRB3*01:01_dm-": "expi293",
 }
 CELL_LINE_MIXTURES = sorted(
     set(
@@ -155,7 +162,39 @@ def handle_pmid_28467828(filename):
 
 def handle_pmid_29314611(filename):
     """Ritz, ..., Fugmann. Proteomics 2018 [PMID 29314611]"""
-    return None
+
+    hla_types = {
+        "MAVER-1": "DRB1*01:01 DRB1*13:01 DRB3*02:02 DQA1*01:01-DQB1*05:01 DQA1*01:03-DQB1*05:01 DQA1*01:01-DQB1*06:03 DQA1*01:03-DQB1*06:03",
+        "DOHH2": "DRB1*01:01 DRB1*15:01 DRB5*01:01 DQA1*01:01-DQB1*05:01 DQA1*01:01-DQB1*06:02 DQA1*01:02-DQB1*05:01 DQA1*01:02-DQB1*06:02",
+    }
+    pulldown_antibody = {
+        "DR": "L243 (HLA-DR)",
+        "DQ": "SPVL3 (HLA-DQ)",
+    }
+    format = {
+        "DR": "DR-specific",
+        "DQ": "DQ-specific",
+    }
+
+    result_dfs = []
+    dfs = pandas.read_excel(
+        filename, sheet_name=None, skiprows=1, index_col="Sequence")
+
+    for (label, df) in dfs.items():
+        label = label.upper()
+        (cell_line, restriction) = label.split("_")
+        result_df = pandas.DataFrame({"peptide": df.index.values})
+        result_df["sample_id"] = label
+        result_df["cell_line"] = cell_line
+        result_df["sample_type"] = cell_line
+        result_df["mhc_class"] = "II"
+        result_df["hla"] = hla_types[cell_line]
+        result_df["pulldown_antibody"] = pulldown_antibody[restriction]
+        result_df["format"] = format[restriction]
+        result_dfs.append(result_df)
+
+    result_df = pandas.concat(result_dfs, ignore_index=True)
+    return result_df
 
 
 def handle_pmid_29317506(*filenames):
@@ -171,18 +210,22 @@ def handle_pmid_29632711(*filenames):
 def handle_pmid_31495665(filename):
     """Abelin, ..., Rooney Immunity 2019 [PMID 31495665]"""
     hla_type = {
-        "HLA-DR_A375": None,
+        "HLA-DR_A375": "DRB1*07:01 DRB4*01:01 DRB1*04:05",
         "HLA-DR_Lung": "DRB1*01:01 DRB1*03:01 DRB3*01:01",
         "HLA-DR_PBMC_HDSC": "DRB1*03:01 DRB1*11:01 DRB3*01:01 DRB3*02:02",
         "HLA-DR_PBMC_RG1095": "HLA-DRA1*01:01-DRB1*03:01 HLA-DRA1*01:01-DRB1*11:01 HLA-DRA1*01:01-DRB3*01:01 HLA-DRA1*01:01-DRB3*02:02",
         "HLA-DR_PBMC_RG1104": "DRB1*01:01 DRB1*11:01 DRB3*02:02",
         "HLA-DR_PBMC_RG1248": "DRB1*03:01 DRB1*03:01 DRB3*01:01 DRB3*01:01",
-        "HLA-DR_SILAC_Donor1_10minLysate": None,
-        "HLA-DR_SILAC_Donor1_5hrLysate": None,
-        "HLA-DR_SILAC_Donor1_DConly": None,
-        "HLA-DR_SILAC_Donor1_UVovernight": None,
-        "HLA-DR_SILAC_Donor2_DC_UV_16hr": None,
-        "HLA-DR_SILAC_Donor2_DC_UV_24hr": None,
+
+        # Note: the paper and Data S1 are pretty confusing regarding the donor1
+        # and donor2 SILAC experiments. These HLA types are a best guess but
+        # I am not 100% confident.
+        "HLA-DR_SILAC_Donor1_10minLysate": "DRB1*07:01 DRB4*01:01",
+        "HLA-DR_SILAC_Donor1_5hrLysate": "DRB1*07:01 DRB4*01:01",
+        "HLA-DR_SILAC_Donor1_DConly": "DRB1*07:01 DRB4*01:01",
+        "HLA-DR_SILAC_Donor1_UVovernight": "DRB1*07:01 DRB4*01:01",
+        "HLA-DR_SILAC_Donor2_DC_UV_16hr": "DRB1*04:01 DRB4*01:03 DRB1*15:03 DRB5*01:01 DQB1*03:02-DQA1*01:02 DQB1*06:02-DQA1*03:01 DPB1*02:01-DPA1*01:03 DPB1*04:01-DPA1*01:03",
+        "HLA-DR_SILAC_Donor2_DC_UV_24hr": "DRB1*04:01 DRB4*01:03 DRB1*15:03 DRB5*01:01 DQB1*03:02-DQA1*01:02 DQB1*06:02-DQA1*03:01 DPB1*02:01-DPA1*01:03 DPB1*04:01-DPA1*01:03",
         "HLA-DR_Spleen": "DRB1*04:01 DRB4*01:03 DRB1*15:03 DRB5*01:01",
         "MAPTAC_A*02:01": "HLA-A*02:01",
         "MAPTAC_A*11:01": "HLA-A*11:01",
@@ -208,11 +251,18 @@ def handle_pmid_31495665(filename):
         "MAPTAC_DRB3*01:01_dm-": "HLA-DRA1*01:01-DRB3*01:01",
     }
     pulldown_antibody = {
+        "HLA-DR_A375": "L243+tal1b5 (HLA-DR)",
         "HLA-DR_Lung": "L243 (HLA-DR)",
         "HLA-DR_PBMC_HDSC": "tal1b5 (HLA-DR)",
         "HLA-DR_PBMC_RG1095": "tal1b5 (HLA-DR)",
         "HLA-DR_PBMC_RG1104": "tal1b5 (HLA-DR)",
         "HLA-DR_PBMC_RG1248": "tal1b5 (HLA-DR)",
+        "HLA-DR_SILAC_Donor1_10minLysate": "L243 (HLA-DR)",
+        "HLA-DR_SILAC_Donor1_5hrLysate": "L243 (HLA-DR)",
+        "HLA-DR_SILAC_Donor1_DConly": "L243 (HLA-DR)",
+        "HLA-DR_SILAC_Donor1_UVovernight": "L243 (HLA-DR)",
+        "HLA-DR_SILAC_Donor2_DC_UV_16hr": "L243 (HLA-DR)",
+        "HLA-DR_SILAC_Donor2_DC_UV_24hr": "L243 (HLA-DR)",
         "HLA-DR_Spleen": "L243 (HLA-DR)",
         "MAPTAC_A*02:01": "MAPTAC",
         "MAPTAC_A*11:01": "MAPTAC",
@@ -238,11 +288,18 @@ def handle_pmid_31495665(filename):
         "MAPTAC_DRB3*01:01_dm-": "MAPTAC",
     }
     format = {
+        "HLA-DR_A375": "DR-specific",
         "HLA-DR_Lung": "DR-specific",
         "HLA-DR_PBMC_HDSC": "DR-specific",
         "HLA-DR_PBMC_RG1095": "DR-specific",
         "HLA-DR_PBMC_RG1104": "DR-specific",
         "HLA-DR_PBMC_RG1248": "DR-specific",
+        "HLA-DR_SILAC_Donor1_10minLysate": "DR-specific",
+        "HLA-DR_SILAC_Donor1_5hrLysate": "DR-specific",
+        "HLA-DR_SILAC_Donor1_DConly": "DR-specific",
+        "HLA-DR_SILAC_Donor1_UVovernight": "DR-specific",
+        "HLA-DR_SILAC_Donor2_DC_UV_16hr": "DR-specific",
+        "HLA-DR_SILAC_Donor2_DC_UV_24hr": "DR-specific",
         "HLA-DR_Spleen": "DR-specific",
         "MAPTAC_A*02:01": "monoallelic",
         "MAPTAC_A*11:01": "monoallelic",
@@ -268,11 +325,18 @@ def handle_pmid_31495665(filename):
         "MAPTAC_DRB3*01:01_dm-": "monoallelic",
     }
     mhc_class = {
+        "HLA-DR_A375": "II",
         "HLA-DR_Lung": "II",
         "HLA-DR_PBMC_HDSC": "II",
         "HLA-DR_PBMC_RG1095": "II",
         "HLA-DR_PBMC_RG1104": "II",
         "HLA-DR_PBMC_RG1248": "II",
+        "HLA-DR_SILAC_Donor1_10minLysate": "II",
+        "HLA-DR_SILAC_Donor1_5hrLysate": "II",
+        "HLA-DR_SILAC_Donor1_DConly": "II",
+        "HLA-DR_SILAC_Donor1_UVovernight": "II",
+        "HLA-DR_SILAC_Donor2_DC_UV_16hr": "II",
+        "HLA-DR_SILAC_Donor2_DC_UV_24hr": "II",
         "HLA-DR_Spleen": "II",
         "MAPTAC_A*02:01": "I",
         "MAPTAC_A*11:01": "I",
@@ -298,11 +362,19 @@ def handle_pmid_31495665(filename):
         "MAPTAC_DRB3*01:01_dm-": "II",
     }
     cell_line = {
+        "HLA-DR_A375": "A375",
         "HLA-DR_Lung": "",
         "HLA-DR_PBMC_HDSC": "",
         "HLA-DR_PBMC_RG1095": "",
         "HLA-DR_PBMC_RG1104": "",
         "HLA-DR_PBMC_RG1248": "",
+        "HLA-DR_SILAC_Donor1_10minLysate": "",
+        "HLA-DR_SILAC_Donor1_5hrLysate": "",
+        "HLA-DR_SILAC_Donor1_DConly": "",
+        "HLA-DR_SILAC_Donor1_UVovernight": "",
+        "HLA-DR_SILAC_Donor2_DC_UV_16hr": "",
+        "HLA-DR_SILAC_Donor2_DC_UV_24hr": "",
+        "HLA-DR_Spleen": "L243 (HLA-DR)",
         "HLA-DR_Spleen": "",
         "MAPTAC_A*02:01": "",
         "MAPTAC_A*11:01": "",
