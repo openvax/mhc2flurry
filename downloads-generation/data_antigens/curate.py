@@ -53,7 +53,7 @@ def run():
 
     match_indices = {}
     peptides = epitopes_df.Description.dropna().str.upper().unique()
-    for peptide in tqdm.tqdm(peptides[:100]):
+    for peptide in tqdm.tqdm(peptides):
         docs = sorted(fm.search(peptide), key=lambda doc: doc.doc_id)
         if len(docs) == 0:
             result = None
