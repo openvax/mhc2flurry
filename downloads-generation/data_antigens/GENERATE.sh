@@ -31,6 +31,7 @@ time python curate.py \
         "$(mhc2flurry-downloads path data_iedb)/viruses.uniprot.fasta.gz" \
     --out-csv epitope_to_sequence.csv
 
+bzip2 epitope_to_sequence.csv
 
 cp $SCRIPT_ABSOLUTE_PATH .
 bzip2 LOG.txt
