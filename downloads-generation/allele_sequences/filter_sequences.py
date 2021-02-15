@@ -65,7 +65,8 @@ def run():
             continue
         seen.add(name)
         sequences.add(record.seq)
-        record.description = name + " " + record.description
+        record.id = "%s.%s" % (args.kind, record.id)
+        record.description = "%s %s" % (name, record.description)
         output_records.append(record)
 
     with open(args.out, "w") as fd:

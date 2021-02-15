@@ -18,8 +18,8 @@ rm -rf "$SCRATCH_DIR/$DOWNLOAD_NAME"
 mkdir "$SCRATCH_DIR/$DOWNLOAD_NAME"
 
 # Send stdout and stderr to a logfile included with the archive.
-exec >  >(tee -ia "$SCRATCH_DIR/$DOWNLOAD_NAME/LOG.txt")
-exec 2> >(tee -ia "$SCRATCH_DIR/$DOWNLOAD_NAME/LOG.txt" >&2)
+#exec >  >(tee -ia "$SCRATCH_DIR/$DOWNLOAD_NAME/LOG.txt")
+#exec 2> >(tee -ia "$SCRATCH_DIR/$DOWNLOAD_NAME/LOG.txt" >&2)
 
 # Log some environment info
 date
@@ -29,8 +29,7 @@ which clustalo
 clustalo --version
 
 cd $SCRATCH_DIR/$DOWNLOAD_NAME
-cp $SCRIPT_DIR/make_allele_sequences.py .
-cp $SCRIPT_DIR/filter_sequences.py .
+cp $SCRIPT_DIR/*.py .
 cp $SCRIPT_ABSOLUTE_PATH .
 
 ######## Human
@@ -80,12 +79,39 @@ cd ..
 #wget -q https://www.uniprot.org/uniprot/P06346.fasta  # MH2-AB*20
 #wget -q https://www.uniprot.org/uniprot/O19470.fasta  # MH2-AB*22
 
+python filter_sequences.py alpha/*.fasta --kind alpha --out alpha.database.fasta
+python filter_sequences.py beta/*.fasta --kind beta --out beta.database.fasta
 
-python filter_sequences.py alpha/*.fasta --kind alpha --out alpha.fasta
-python filter_sequences.py beta/*.fasta --kind beta --out beta.fasta
+# Generate PDB sequences
+time python extract_pdb_sequences.py \
+    "$(mhc2flurry-downloads path data_pdb)/structures" \
+    "$(pwd)/pdb_sequences.fasta"
 
-time clustalo -i "$(pwd)/alpha.fasta" -o "$(pwd)/alpha.aligned.fasta"
-time clustalo -i "$(pwd)/beta.fasta" -o "$(pwd)/beta.aligned.fasta"
+# Search PDB sequences against downloaded IMDB
+cat alpha.database.fasta beta.database.fasta > alpha_and_beta.database.fasta
+MMSEQS_OUTPUT_FORMAT="query,target,qaln,taln,qseq,tseq,qcov,tcov,qstart,qend,qlen,tstart,tend,tlen,evalue"
+mmseqs easy-search \
+    "$(pwd)/pdb_sequences.fasta" \
+    "$(pwd)/alpha_and_beta.database.fasta" \
+    "$(pwd)/pdb_search.m8" \
+    "${TMPDIR-/tmp}" \
+    --format-output "$MMSEQS_OUTPUT_FORMAT" \
+    -s 1.0
+time python assign_pdb_sequences_to_alpha_or_beta.py \
+    "$(pwd)/pdb_sequences.fasta" \
+    "$(pwd)/pdb_search.m8" \
+    --mmseqs-output-format "$MMSEQS_OUTPUT_FORMAT" \
+    --out-alpha "$(pwd)/alpha.pdb.fasta" \
+    --out-beta "$(pwd)/beta.pdb.fasta"
+
+cat alpha.pdb.fasta alpha.database.fasta > alpha.combined.fasta
+cat beta.pdb.fasta beta.database.fasta > beta.combined.fasta
+
+# Run clustalo to generate multiple sequence alignments
+time clustalo -i "$(pwd)/alpha.combined.fasta" -o "$(pwd)/alpha.aligned.fasta" \
+    --clustering-out cluster.alpha.aux
+time clustalo -i "$(pwd)/beta.combined.fasta" -o "$(pwd)/beta.aligned.fasta" \
+    --clustering-out cluster.beta.aux
 
 time python make_allele_sequences.py \
     "$(pwd)/alpha.aligned.fasta" \

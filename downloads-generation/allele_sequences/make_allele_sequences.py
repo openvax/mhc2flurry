@@ -39,9 +39,10 @@ def run():
     for fasta in args.aligned_fasta:
         reader = Bio.SeqIO.parse(fasta, "fasta")
         for record in reader:
-            name = record.description.split()[1]
-            print(record.name, record.description)
-            allele_to_sequence[name] = str(record.seq)
+            if record.description:
+                name = record.description.split()[1]
+                print(record.name, record.description)
+                allele_to_sequence[name] = str(record.seq)
 
     allele_to_sequence = pandas.Series(allele_to_sequence).sort_index()
     print("Read %d aligned sequences" % len(allele_to_sequence))
