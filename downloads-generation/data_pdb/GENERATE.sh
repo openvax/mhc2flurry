@@ -25,18 +25,17 @@ exec 2> >(tee -ia "$SCRATCH_DIR/$DOWNLOAD_NAME/LOG.txt" >&2)
 date
 pip freeze
 git status
-which clustalo
-clustalo --version
 
 cd $SCRATCH_DIR/$DOWNLOAD_NAME
 cp $SCRIPT_DIR/batch_download.sh .
-cp $SCRIPT_DIR/*.json .
+cp $SCRIPT_DIR/*.py .
 cp $SCRIPT_ABSOLUTE_PATH .
 
+mkdir structures
+python make_pdb_query.py > pdb_query.json
 curl https://search.rcsb.org/rcsbsearch/v1/query --data-urlencode "json@pdb_query.json" -G -o results.json
-
-# TODO: make the query programmatically to include multiple alleles (not just DRA*01:01 as now).
-# TODO: download the entries.
+python parse_results.py results.json identifiers.txt
+bash batch_download.sh -f identifiers.txt -o structures -c
 
 cp $SCRIPT_ABSOLUTE_PATH .
 bzip2 LOG.txt
