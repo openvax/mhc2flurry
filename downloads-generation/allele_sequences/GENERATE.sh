@@ -113,6 +113,8 @@ time clustalo -i "$(pwd)/alpha.combined.fasta" -o "$(pwd)/alpha.aligned.fasta" \
 time clustalo -i "$(pwd)/beta.combined.fasta" -o "$(pwd)/beta.aligned.fasta" \
     --clustering-out cluster.beta.aux
 
+# TODO: make_allele_sequences.py should be modified to use PDB information and
+# proximity to peptide to decide what positions to include
 time python make_allele_sequences.py \
     "$(pwd)/alpha.aligned.fasta" \
     --reference-allele HLA-DRA*01:01 \
