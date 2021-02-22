@@ -375,6 +375,14 @@ def run():
         print("Wrote: ", filename)
 
         # Reference structures
+        # Write out reference structures with the "bvalue" atom property used
+        # to indicate minor allele fractions / fraction of residues within a
+        # given distance of the peptide / inclusion in pseudosequences.
+        # This can be used to generate colored renderings showing these
+        # properties, e.g. in pymol.
+        # This "b-factor" hack is commonly used to store arbitrary user data
+        # in a PDB file. There may be a better way for CIF files but I don't
+        # know of one.
         for accession in args.reference_structure:
             positional_with_residues_df = positional_df.copy()
             positional_with_residues_df[

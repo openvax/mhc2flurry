@@ -123,14 +123,15 @@ time python make_pseudosequences.py \
     --reference-allele HLA-DRA*01:01 HLA-DRB1*01:01 \
     --reference-structure 3QXD \
     --reference-structure 5KSU \
-    --out-csv "$(pwd)/pseudo.csv" \
+    --out-csv "$(pwd)/allele_sequences.csv" \
     --out-aux-dir "$(pwd)/aux-info"  # Extra info
 
 # Cleanup
-gzip -f alpha.fasta
-gzip -f alpha.aligned.fasta
-gzip -f beta.fasta
-gzip -f beta.aligned.fasta
+rm pdb_search.m8
+for i in $(ls *.fasta)
+do
+    gzip -f "$i"
+done
 
 cp $SCRIPT_ABSOLUTE_PATH .
 bzip2 LOG.txt
