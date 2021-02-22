@@ -113,22 +113,18 @@ time clustalo -i "$(pwd)/alpha.combined.fasta" -o "$(pwd)/alpha.aligned.fasta" \
 time clustalo -i "$(pwd)/beta.combined.fasta" -o "$(pwd)/beta.aligned.fasta" \
     --clustering-out cluster.beta.aux
 
-# TODO: make_allele_sequences.py should be modified to use PDB information and
-# proximity to peptide to decide what positions to include
-time python make_allele_sequences.py \
-    "$(pwd)/alpha.aligned.fasta" \
-    --reference-allele HLA-DRA*01:01 \
-    --out-csv "$(pwd)/alpha.csv"
-
-time python make_allele_sequences.py \
-    "$(pwd)/beta.aligned.fasta" \
-    --reference-allele HLA-DRB1*01:01 \
-    --out-csv "$(pwd)/beta.csv"
-
-time python make_allele_sequences.py \
+time python make_pseudosequences.py \
     "$(pwd)/alpha.aligned.fasta" \
     "$(pwd)/beta.aligned.fasta" \
-    --out-csv "$(pwd)/all.csv"
+    "$(mhc2flurry-downloads path data_pdb)/structures" \
+    --criteria 0.2 6.0 0.3 \
+    --criteria 0.1 8.0 0.1 \
+    --criteria 0.05 10.0 0.05 \
+    --reference-allele HLA-DRA*01:01 HLA-DRB1*01:01 \
+    --reference-structure 3QXD \
+    --reference-structure 5KSU \
+    --out-csv "$(pwd)/pseudo.csv" \
+    --out-aux-dir "$(pwd)/aux-info"  # Extra info
 
 # Cleanup
 gzip -f alpha.fasta
