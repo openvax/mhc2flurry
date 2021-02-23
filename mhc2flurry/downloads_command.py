@@ -237,27 +237,39 @@ def fetch_subcommand(args):
                             reporthook=TqdmUpTo(
                                 unit='B', unit_scale=True, miniters=1).update_to)
                         qprint("Downloaded to: %s" % quote(downloaded_path))
-                    except urllib.error.HTTPError:
-                        # assume this is a private repo, go through auth flow. See
-                        # https://stackoverflow.com/questions/20396329
+                    except urllib.error.HTTPError as e:
+                        # If this is coming from a GitHub release, try to use
+                        # a private token if available.
+                        # See https://stackoverflow.com/questions/20396329
+                        match = re.match(
+                            'https://github.com/(.+?)/(.+?)/releases/download/(.+?)/(.+?)$',
+                            url)
+                        if not match:
+                            raise e
 
-                        # get github asset ID based on the release tag
-                        owner, repo, tag, file = re.search(
-                            'https://github.com/(.+?)/(.+?)/releases/download/(.+?)/(.+?)', url
-                            ).groups()
+                        token = os.environ.get("MHC2FLURRY_DOWNLOADS_GITHUB_AUTH_TOKEN")
+                        if not token:
+                            raise e
+
+                        (owner, repo, tag, file) = match.groups()
+
                         request = urllib.request.Request(
                             f'https://api.github.com/repos/{owner}/{repo}/releases/tags/{tag}')
                         request.add_header(
-                            "Authorization", "token " + os.environ.get("GITHUB_AUTH_TOKEN"))
+                            "Authorization",
+                            "token " + token)
                         response = urllib.request.urlopen(request)
                         assets = json.loads(response.read())['assets']
-                        aid = [x for x in assets if x['browser_download_url'] == url][0]['id']
+                        aid = [
+                            x for x in assets
+                            if x['browser_download_url'] == url
+                        ][0]['id']
                             
                         # download asset by ID
                         request = urllib.request.Request(
                             f'https://api.github.com/repos/{owner}/{repo}/releases/assets/{aid}')
                         request.add_header(
-                            "Authorization", "token " + os.environ.get("GITHUB_AUTH_TOKEN"))
+                            "Authorization", "token " + token)
                         request.add_header("Accept",  "application/octet-stream")
                         response = urllib.request.urlopen(request)
 
