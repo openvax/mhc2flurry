@@ -23,6 +23,8 @@ from __future__ import (
     division,
     absolute_import,
 )
+import json
+import re
 import sys
 import argparse
 import logging
@@ -34,16 +36,12 @@ from shutil import copyfileobj
 from tempfile import NamedTemporaryFile
 from tqdm import tqdm
 tqdm.monitor_interval = 0  # see https://github.com/tqdm/tqdm/issues/481
+from urllib.parse import urlsplit
+import urllib.request
+import urllib.error
 
 import posixpath
 import pandas
-
-try:
-    from urllib.request import urlretrieve
-    from urllib.parse import urlsplit
-except ImportError:
-    from urllib import urlretrieve
-    from urlparse import urlsplit
 
 from .downloads import (
     get_current_release,
@@ -232,12 +230,41 @@ def fetch_subcommand(args):
                 else:
                     qprint("Downloading [part %d/%d]: %s" % (
                         url_num + 1, len(urls), url))
-                    (downloaded_path, _) = urlretrieve(
-                        url,
-                        temp.name if len(urls) == 1 else None,
-                        reporthook=TqdmUpTo(
-                            unit='B', unit_scale=True, miniters=1).update_to)
-                    qprint("Downloaded to: %s" % quote(downloaded_path))
+                    try:
+                        (downloaded_path, _) = urllib.request.urlretrieve(
+                            url,
+                            temp.name if len(urls) == 1 else None,
+                            reporthook=TqdmUpTo(
+                                unit='B', unit_scale=True, miniters=1).update_to)
+                        qprint("Downloaded to: %s" % quote(downloaded_path))
+                    except urllib.error.HTTPError:
+                        # assume this is a private repo, go through auth flow. See
+                        # https://stackoverflow.com/questions/20396329
+
+                        # get github asset ID based on the release tag
+                        owner, repo, tag, file = re.search(
+                            'https://github.com/(.+?)/(.+?)/releases/download/(.+?)/(.+?)', url
+                            ).groups()
+                        request = urllib.request.Request(
+                            f'https://api.github.com/repos/{owner}/{repo}/releases/tags/{tag}')
+                        request.add_header(
+                            "Authorization", "token " + os.environ.get("GITHUB_AUTH_TOKEN"))
+                        response = urllib.request.urlopen(request)
+                        assets = json.loads(response.read())['assets']
+                        aid = [x for x in assets if x['browser_download_url'] == url][0]['id']
+                            
+                        # download asset by ID
+                        request = urllib.request.Request(
+                            f'https://api.github.com/repos/{owner}/{repo}/releases/assets/{aid}')
+                        request.add_header(
+                            "Authorization", "token " + os.environ.get("GITHUB_AUTH_TOKEN"))
+                        request.add_header("Accept",  "application/octet-stream")
+                        response = urllib.request.urlopen(request)
+
+                        with open(temp.name, 'wb') as f:
+                            f.write(response.read())
+                        downloaded_path = temp.name
+                        qprint("Downloaded to: %s" % quote(downloaded_path))
 
                 if downloaded_path != temp.name:
                     qprint("Copying to: %s" % temp.name)
