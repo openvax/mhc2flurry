@@ -211,6 +211,8 @@ def check_accuracy(df, network, alpha_sequences, beta_sequences, message=""):
     print(message, "allele specific AUCs:")
     print(allele_specific_aucs)
 
+    print(message, "Mean predictions")
+    print(stacked_binders.groupby(["allele", "binder"]).prediction.mean())
 
     #import ipdb ; ipdb.set_trace()
 

@@ -347,6 +347,7 @@ def run():
         if args.reference_allele:
             write_df = positional_df.copy()
             (alpha_reference, beta_reference) = args.reference_allele
+            reference_name = "%s/%s" % (alpha_reference, beta_reference)
             reference_alleles = {
                 "alpha": alpha_reference,
                 "beta": beta_reference,
@@ -360,13 +361,13 @@ def run():
                     reference_sequence)
                 write_df.loc[
                     kind,
-                    alpha_reference + " position"
+                    reference_name + " position"
                 ] = write_df.loc[
                     kind
                 ].index.map(position_map)
                 write_df.loc[
                     kind,
-                    alpha_reference + " aa"
+                    reference_name + " aa"
                 ] = write_df.loc[
                     kind
                 ].index.map(lambda pos: reference_sequence[pos])
