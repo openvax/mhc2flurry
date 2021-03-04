@@ -35,6 +35,8 @@ cd $SCRATCH_DIR/$DOWNLOAD_NAME
 
 cp $SCRIPT_DIR/curate.py .
 cp $SCRIPT_DIR/curate_ms_by_pmid.py .
+cp $SCRIPT_DIR/annotate_proteins.py .
+
 
 MS_DIR="$(mhc2flurry-downloads path data_published)/ms"
 cp -r "$MS_DIR" .
@@ -57,9 +59,6 @@ time python curate_ms_by_pmid.py $CURATE_BY_PMID_ARGS \
     --expression-out rna_expression.csv \
     --expression-metadata-out rna_expression.metadata.csv
 
-bzip2 ms.by_pmid.csv
-bzip2 rna_expression.csv
-
 rm -rf ms
 
 time python curate.py \
@@ -74,6 +73,15 @@ time python curate.py \
     --data-iedb \
         "$(mhc2flurry-downloads path data_iedb)/mhc_ligand_full.csv.bz2" \
     --out-csv curated_training_data.no_additional_ms.csv
+
+for i in ms.by_pmid.csv curated_training_data.csv curated_training_data.mass_spec.csv curated_training_data.no_additional_ms.csv
+do
+    time python annotate_proteins.py \
+        "$(pwd)/$i" \
+        "$(mhc2flurry-downloads path data_proteomes)/human.uniprot.one_per_gene.fasta.gz" \
+        --protein-column proteins_human \
+        --out-csv "$(pwd)/$i"
+done
 
 for i in $(ls *.csv)
 do
