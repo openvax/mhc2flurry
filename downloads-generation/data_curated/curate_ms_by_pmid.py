@@ -137,6 +137,8 @@ def handle_pmid_26495903(*filenames):
 
 def handle_pmid_26740625(*filenames):
     """Clement, ..., Santambrogio. J. Biol. Chem. 2016 [PMID 26740625]"""
+    # Mouse with transgenic DRB*01:01, collected about 3,000 peptides.
+    # Peptides are mouse-derived, MHC II is human.
     return None
 
 
@@ -549,7 +551,7 @@ def handle_pmid_31611696(data_s1_filename, data_s2_filename):
     ] = result_df.loc[result_df.format == "DR-specific", "hla"].map(
         lambda s: " ".join([allele for allele in s.split() if "DR" in allele])
     )
-
+    del result_df["intensity"]
     return result_df
 
 
@@ -836,7 +838,14 @@ def run():
             ]))
 
     sample_table = ms_df[
-        ["sample_id", "pmid", "expression_dataset", "cell_line", "sample_type"]
+        [
+            "sample_id",
+            "pmid",
+            "format",
+            "expression_dataset",
+            "cell_line",
+            "sample_type",
+        ]
     ].drop_duplicates().set_index("sample_id")
 
     sample_id_to_expression_dataset = sample_table.expression_dataset.to_dict()
@@ -867,6 +876,9 @@ def run():
 
     print("Expression dataset usage:")
     print(pandas.Series(sample_id_to_expression_dataset).value_counts())
+
+    print("PMIDs by format:")
+    print(sample_table.groupby("format").pmid.unique())
 
     missing = [
         key for (key, value) in

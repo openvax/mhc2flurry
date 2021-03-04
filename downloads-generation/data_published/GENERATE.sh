@@ -130,9 +130,10 @@ wget -q 'https://static-content.springer.com/esm/art%3A10.1038%2Fs41587-019-0289
 wget -q 'https://static-content.springer.com/esm/art%3A10.1038%2Fs41587-019-0289-6/MediaObjects/41587_2019_289_MOESM5_ESM.txt' -P ms/$PMID
 
 ############################################
-# Non MS: T cell epitopes, etc.
+# Non MS: T cell epitopes, yeast display, etc.
 ############################################
 #
+# "NetMHCpan-4.1 and NetMHCIIpan-4.0: improved predictions of MHC antigen presentation by concurrent motif deconvolution and integration of MS MHC eluted ligand data"
 # Reynissonm ..., Nielsen. Nucleic Acids Res. 2020 [PMID 32406916]
 #
 PMID=32406916
@@ -147,6 +148,14 @@ do
     bzip2 $i
 done
 popd
+
+#
+# "Repertoire-scale determination of class II MHC peptide binding via yeast display improves antigen prediction"
+# Rapazzo, ..., Birnbaum. Nat. Commun. 2020 [PMID 32887877]
+#
+PMID=32887877
+mkdir -p other/$PMID
+wget -q 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7473865/bin/41467_2020_18204_MOESM4_ESM.xlsx' -P other/$PMID
 
 ############################################
 # RNA-seq expression data (TPMs)
