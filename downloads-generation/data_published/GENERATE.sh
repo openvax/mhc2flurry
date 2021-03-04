@@ -23,25 +23,6 @@ date
 cd $SCRATCH_DIR/$DOWNLOAD_NAME
 
 ############################################
-# Non MS: T cell epitopes, etc.
-############################################
-#
-# Reynissonm ..., Nielsen. Nucleic Acids Res. 2020 [PMID 32406916]
-#
-PMID=32406916
-mkdir -p other/$PMID
-wget -q 'https://services.healthtech.dtu.dk/services/NetMHCIIpan-4.0/suppl/CD4_epitopes/CD4_epitopes.fsa' -P other/$PMID
-wget -q 'http://www.cbs.dtu.dk/suppl/immunology/NAR_NetMHCpan_NetMHCIIpan/NetMHCIIpan_train.tar.gz' -P other/$PMID
-pushd other/$PMID
-tar xvzf *.tar.gz
-rm *.tar.gz
-for i in $(find . -mindepth 1 -type f)
-do
-    bzip2 $i
-done
-popd
-
-############################################
 # MS: Class II
 ############################################
 
@@ -70,20 +51,21 @@ wget -q "https://static-content.springer.com/esm/art%3A10.1038%2Fncomms13404/Med
 # Clement, ..., Santambrogio. J. Biol. Chem. 2016 [PMID 26740625]
 PMID=26740625
 mkdir -p ms/$PMID
-wget -q 'https://www.jbc.org/lookup/suppl/doi:10.1074/jbc.M115.655738/-/DC1/jbc.M115.655738-2.xlsx' -P ms/$PMID
-wget -q 'https://www.jbc.org/lookup/suppl/doi:10.1074/jbc.M115.655738/-/DC1/jbc.M115.655738-3.xls' -P ms/$PMID
-wget -q 'https://www.jbc.org/lookup/suppl/doi:10.1074/jbc.M115.655738/-/DC1/jbc.M115.655738-4.xlsx' -P ms/$PMID
-wget -q 'https://www.jbc.org/lookup/suppl/doi:10.1074/jbc.M115.655738/-/DC1/jbc.M115.655738-5.xls' -P ms/$PMID
+wget -q 'https://www.jbc.org/cms/10.1074/jbc.M115.655738/attachment/687abf48-576f-41e1-8f9f-dc40fbfa27ae/mmc1.zip' -P ms/$PMID
+pushd ms/$PMID
+unzip *.zip
+rm *.zip
+popd
 
 # Heyder, ..., Ytterberg. Mol. Cell. Proteomics 2016 [PMID 27452731]
 PMID=27452731
 mkdir -p ms/$PMID
-wget -q 'https://www.mcponline.org/lookup/suppl/doi:10.1074/mcp.M116.060764/-/DC1/mcp.M116.060764-5.xlsx' -P ms/$PMID
-wget -q 'https://www.mcponline.org/lookup/suppl/doi:10.1074/mcp.M116.060764/-/DC1/mcp.M116.060764-6.xlsx' -P ms/$PMID
-wget -q 'https://www.mcponline.org/lookup/suppl/doi:10.1074/mcp.M116.060764/-/DC1/mcp.M116.060764-7.xlsx' -P ms/$PMID
-wget -q 'https://www.mcponline.org/lookup/suppl/doi:10.1074/mcp.M116.060764/-/DC1/mcp.M116.060764-8.xlsx' -P ms/$PMID
-wget -q 'https://www.mcponline.org/lookup/suppl/doi:10.1074/mcp.M116.060764/-/DC1/mcp.M116.060764-9.xlsx' -P ms/$PMID
-wget -q 'https://www.mcponline.org/lookup/suppl/doi:10.1074/mcp.M116.060764/-/DC1/mcp.M116.060764-10.xlsx' -P ms/$PMID
+wget -q 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5013314/bin/10.1074_M116.060764_mcp.M116.060764-5.xlsx' -P ms/$PMID
+wget -q 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5013314/bin/10.1074_M116.060764_mcp.M116.060764-6.xlsx' -P ms/$PMID
+wget -q 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5013314/bin/10.1074_M116.060764_mcp.M116.060764-7.xlsx' -P ms/$PMID
+wget -q 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5013314/bin/10.1074_M116.060764_mcp.M116.060764-8.xlsx' -P ms/$PMID
+wget -q 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5013314/bin/10.1074_M116.060764_mcp.M116.060764-9.xlsx' -P ms/$PMID
+wget -q 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5013314/bin/10.1074_M116.060764_mcp.M116.060764-5.xlsx' -P ms/$PMID
 
 ## Wang, ..., Costello. J. Proteom. Res. 2017 [PMID 27726376]
 PMID=27726376
@@ -111,8 +93,11 @@ wget -q 'https://onlinelibrary.wiley.com/action/downloadSupplement?doi=10.1002%2
 # Ting, ..., Rossjohn. J. Biol. Chem. 2018 [PMID 29317506]
 PMID=29317506
 mkdir -p ms/$PMID
-wget -q 'https://www.jbc.org/content/suppl/2018/01/09/RA117.001013.DC1/133985_1_supp_41497_p18sc8.xlsx' -P ms/$PMID
-wget -q 'https://onlinelibrary.wiley.com/action/downloadSupplement?doi=10.1002%2Fpmic.201700246&file=pmic12799-sup-0004-TableS2.xlsx' -P ms/$PMID
+wget -q 'https://www.jbc.org/cms/10.1074/jbc.RA117.001013/attachment/3a33375f-7acd-420c-ac79-e3adbb6cf394/mmc1.zip' -P ms/$PMID
+pushd ms/$PMID
+unzip *.zip
+rm *.zip
+popd
 
 # Nelde, ..., Walz. Oncoimmunology 2018 [PMID 29632711]
 PMID=29632711
@@ -144,6 +129,24 @@ mkdir -p ms/$PMID
 wget -q 'https://static-content.springer.com/esm/art%3A10.1038%2Fs41587-019-0289-6/MediaObjects/41587_2019_289_MOESM4_ESM.txt' -P ms/$PMID
 wget -q 'https://static-content.springer.com/esm/art%3A10.1038%2Fs41587-019-0289-6/MediaObjects/41587_2019_289_MOESM5_ESM.txt' -P ms/$PMID
 
+############################################
+# Non MS: T cell epitopes, etc.
+############################################
+#
+# Reynissonm ..., Nielsen. Nucleic Acids Res. 2020 [PMID 32406916]
+#
+PMID=32406916
+mkdir -p other/$PMID
+wget -q 'https://services.healthtech.dtu.dk/services/NetMHCIIpan-4.0/suppl/CD4_epitopes/CD4_epitopes.fsa' -P other/$PMID
+wget -q 'http://www.cbs.dtu.dk/suppl/immunology/NAR_NetMHCpan_NetMHCIIpan/NetMHCIIpan_train.tar.gz' -P other/$PMID
+pushd other/$PMID
+tar xvzf *.tar.gz
+rm *.tar.gz
+for i in $(find . -mindepth 1 -type f)
+do
+    bzip2 $i
+done
+popd
 
 ############################################
 # RNA-seq expression data (TPMs)
