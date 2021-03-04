@@ -260,10 +260,13 @@ def fetch_subcommand(args):
                             "token " + token)
                         response = urllib.request.urlopen(request)
                         assets = json.loads(response.read())['assets']
-                        aid = [
+                        aids = [
                             x for x in assets
                             if x['browser_download_url'] == url
-                        ][0]['id']
+                        ]
+                        if not aids:
+                            raise e
+                        aid = aids[0]['id']
                             
                         # download asset by ID
                         request = urllib.request.Request(
