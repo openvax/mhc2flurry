@@ -31,7 +31,7 @@ wget -q http://www.iedb.org/downloader.php?file_name=doc/tcell_full_v3.zip -O tc
 #    proteome:(excluded:no taxonomy:"Viruses [10239]") host:"Homo sapiens (Human) [9606]"
 # link to human readable:
 # https://www.uniprot.org/uniprot/?query=proteome%3A%28excluded%3Ano+taxonomy%3A%22Viruses+%5B10239%5D%22%29+AND+host%3A%22Homo+sapiens+%28Human%29+%5B9606%5D%22&sort=score
-wget 'https://www.uniprot.org/uniprot/?query=proteome:(excluded:no%20taxonomy:%22Viruses%20[10239]%22)%20AND%20host:%22Homo%20sapiens%20(Human)%20[9606]%22&format=fasta&sort=score' -O viruses.uniprot.fasta
+wget -q 'https://www.uniprot.org/uniprot/?query=proteome:(excluded:no%20taxonomy:%22Viruses%20[10239]%22)%20AND%20host:%22Homo%20sapiens%20(Human)%20[9606]%22&format=fasta&sort=score' -O viruses.uniprot.fasta
 gzip viruses.uniprot.fasta
 
 unzip mhc_ligand_full.zip
