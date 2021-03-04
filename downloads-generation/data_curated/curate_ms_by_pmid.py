@@ -83,7 +83,7 @@ def debug(*filenames):
 
 
 PMID_31495665_SAMPLE_TYPES = {
-    "HLA-DR_A375": "A375",
+    "HLA-DR_A375": "a375",
     "HLA-DR_Lung": "lung",
     "HLA-DR_PBMC_HDSC": "pbmc",
     "HLA-DR_PBMC_RG1095": "pbmc",
@@ -175,7 +175,6 @@ def handle_pmid_29314611(filename):
         "DR": "DR-specific",
         "DQ": "DQ-specific",
     }
-
     result_dfs = []
     dfs = pandas.read_excel(
         filename, sheet_name=None, skiprows=1, index_col="Sequence")
@@ -186,7 +185,7 @@ def handle_pmid_29314611(filename):
         result_df = pandas.DataFrame({"peptide": df.index.values})
         result_df["sample_id"] = label
         result_df["cell_line"] = cell_line
-        result_df["sample_type"] = cell_line
+        result_df["sample_type"] = "B-CELL"
         result_df["mhc_class"] = "II"
         result_df["hla"] = hla_types[cell_line]
         result_df["pulldown_antibody"] = pulldown_antibody[restriction]
@@ -427,8 +426,10 @@ def handle_pmid_31495665(filename):
 
 def handle_pmid_31611696(data_s1_filename, data_s2_filename):
     """Racle, ..., Gfeller. Nature Biotechnology 2019 [PMID 31611696]"""
-    data_s1 = pandas.read_csv(data_s1_filename, sep=None).set_index("Sequence")
-    data_s2 = pandas.read_csv(data_s2_filename, sep=None).set_index("Sequence")
+    data_s1 = pandas.read_csv(
+        data_s1_filename, sep=None, engine="python").set_index("Sequence")
+    data_s2 = pandas.read_csv(
+        data_s2_filename, sep=None, engine="python").set_index("Sequence")
 
     # HLA typing is given as a PDF in Supplementary Table 1.
     # In cases of ambiguous assignment we use the primary assignment.
@@ -552,61 +553,11 @@ def handle_pmid_31611696(data_s1_filename, data_s2_filename):
     return result_df
 
 
-def Xhandle_pmid_27869121(filename):
+def handle_pmid_27869121(filename):
     """Bassani-Sternberg, ..., Krackhardt Nature Comm. 2016 [PMID 27869121]"""
-    # Although this dataset has class II data also, we are only extracting
-    # class I for now.
-    df = pandas.read_excel(filename, skiprows=1)
-
-    # Taking these from:
-    # Supplementary Table 2: Information of patients selected for neoepitope
-    # identification
-    # For the Mel5 sample, only two-digit alleles are shown (A*01, A*25,
-    # B*08, B*18) so we are skipping that sample for now.
-    hla_df = pandas.DataFrame([
-        ("Mel-8", "HLA-A*01:01 HLA-A*03:01 HLA-B*07:02 HLA-B*08:01 HLA-C*07:01 HLA-C*07:02"),
-        ("Mel-12", "HLA-A*01:01 HLA-B*08:01 HLA-C*07:01"),
-        ("Mel-15", "HLA-A*03:01 HLA-A*68:01 HLA-B*27:05 HLA-B*35:03 HLA-C*02:02 HLA-C*04:01"),
-        ("Mel-16", "HLA-A*01:01 HLA-A*24:02 HLA-B*07:02 HLA-B*08:01 HLA-C*07:01 HLA-C*07:02"),
-    ], columns=["sample_id", "hla"]).set_index("sample_id")
-
-    # We assert below that none of the class I hit peptides were found in any
-    # of the class II pull downs.
-    class_ii_cols = [
-        c for c in df.columns if c.endswith("HLA-II (arbitrary units)")
-    ]
-    class_ii_hits = set(df.loc[
-        (df[class_ii_cols].fillna(0.0).sum(1) > 0)
-    ].Sequence.unique())
-
-    results = []
-    for (sample_id, hla) in hla_df.hla.items():
-        intensity_col = "Intensity %s_HLA-I (arbitrary units)" % sample_id
-        sub_df = df.loc[
-            (df[intensity_col].fillna(0.0) > 0)
-        ]
-        filtered_sub_df = sub_df.loc[
-            (~sub_df.Sequence.isin(class_ii_hits))
-        ]
-        peptides = filtered_sub_df.Sequence.unique()
-        assert not any(p in class_ii_hits for p in peptides)
-
-        result_df = pandas.DataFrame({
-            "peptide": peptides,
-        })
-        result_df["sample_id"] = sample_id
-        result_df["hla"] = hla_df.loc[sample_id, "hla"]
-        result_df["pulldown_antibody"] = "W6/32"
-        result_df["format"] = "multiallelic"
-        result_df["mhc_class"] = "I"
-        result_df["sample_type"] = "melanoma_met"
-        result_df["cell_line"] = None
-        results.append(result_df)
-
-    result_df = pandas.concat(results, ignore_index=True)
-    return result_df
-
-
+    # While this data set includes class II ligands, unfortunately the HLA
+    # typing (Supp Table 2) seems to be class I only. So we skip this dataset.
+    return None
 
 
 EXPRESSION_GROUPS_ROWS = []
@@ -663,7 +614,6 @@ def handle_expression_expression_atlas_22460905(filename):
         "sample_type:B721-LIKE": matches("b-cell"),
         "sample_type:MELANOMA_CELL_LINE": matches("melanoma"),
         "sample_type:MELANOMA": matches("melanoma"),
-        "sample_type:A375-LIKE": matches("melanoma"),
         "sample_type:KG1-LIKE": matches("myeloid leukemia"),
 
         # Using a fibrosarcoma cell line for our fibroblast sample.
@@ -672,6 +622,7 @@ def handle_expression_expression_atlas_22460905(filename):
         # For GBM tissue we are just using a mixture of cell lines.
         "sample_type:GLIOBLASTOMA_TISSUE": matches("glioblastoma"),
 
+        "cell_line:A375": ['amelanotic melanoma, a-375'],
         "cell_line:THP-1": ["childhood acute monocytic leukemia, thp-1"],
         "cell_line:HL-60": ["adult acute myeloid leukemia, hl-60"],
         "cell_line:U-87": ['glioblastoma, u-87 mg'],
