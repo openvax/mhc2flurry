@@ -4,12 +4,12 @@ protein(s) from some specified proteome contain that peptide.
 """
 
 import argparse
-import pandas
 import time
-import tqdm
-
 import sys
 
+import tqdm
+import pandas
+import numpy
 import shellinford
 
 from mhc2flurry.fasta import read_fasta_to_dataframe
@@ -17,13 +17,19 @@ from mhc2flurry.fasta import read_fasta_to_dataframe
 parser = argparse.ArgumentParser(usage=__doc__)
 
 parser.add_argument(
-    "input_csv",
-    metavar="CSV",
-    help="Input file")
-parser.add_argument(
-    "proteome",
+    "reference",
     metavar="FASTA",
-    help="Fasta proteome to search")
+    help="Fasta proteome to search.")
+parser.add_argument(
+    "--annotate",
+    action="append",
+    default=[],
+    nargs=2,
+    metavar="CSV",
+    help="Input and output file pairs. Specify this argument multiple times "
+    "to process multiple input files, each of which will be written to its "
+    "respective output file. The output file can be specified as '-' to "
+    "overwrite the input file.")
 parser.add_argument(
     "--peptide-column",
     default="peptide",
@@ -42,36 +48,63 @@ parser.add_argument(
     default=" ",
     help="Separator to use between protein names. Default: '%(default)s'")
 parser.add_argument(
-    "--out-csv",
-    required=True,
-    metavar="CSV",
-    help="Result file")
+    "--fm-index-suffix",
+    metavar="SUFFIX",
+    help="Use a pre-existing fm index found by concatenating SUFFIX onto each "
+    "input fasta filename.")
 
 
 def run():
     args = parser.parse_args(sys.argv[1:])
 
-    df = pandas.read_csv(args.input_csv)
+    peptides = set()
+    input_filename_df_and_output_filename = []
+
+    for (input, output) in args.annotate:
+        if output.strip() == "-":
+            output = input
+        df = pandas.read_csv(input)
+        print("Read peptides", input)
+        print(df)
+        input_filename_df_and_output_filename.append((input, df, output))
+        peptides.update(df[args.peptide_column].unique())
+
+    print("Read %d peptides to annotate" % len(peptides))
+
     proteome_df = read_fasta_to_dataframe(
-        args.proteome, full_descriptions=args.full_descriptions)
+        args.reference, full_descriptions=args.full_descriptions)
 
-    print("Building FM index")
-    start = time.time()
+    print("Read proteome:")
+    print(proteome_df)
+
     fm = shellinford.FMIndex()
-    fm.build(proteome_df.sequence.tolist())
-    print("Built index of %d sequences in %0.3f sec." % (
-        len(proteome_df), time.time() - start))
+    start = time.time()
+    if args.fm_index_suffix:
+        name = args.reference + args.fm_index_suffix
+        print("Using pre-existing fm index", name)
+        fm.read(name)
+        print("Read in %0.3f sec." % (time.time() - start))
+    else:
+        print("Building FM index")
+        fm.build(proteome_df.sequence.tolist())
+        print("Built index of %d sequences in %0.3f sec." % (
+            len(proteome_df), time.time() - start))
 
-    result = []
-    for peptide in tqdm.tqdm(df[args.peptide_column].values):
+    print("Annotating peptides")
+    peptide_to_matches = {}
+    for peptide in tqdm.tqdm(peptides):
         matches = [item.doc_id for item in fm.search(peptide)]
         names = args.join_character.join(
             proteome_df.loc[matches, "sequence_id"].values)
-        result.append(names)
+        peptide_to_matches[peptide] = names
 
-    df[args.protein_column] = result
-    df.to_csv(args.out_csv, index=False)
-    print("Wrote", args.out_csv)
+    print("Writing files")
+    for (input, df, output) in input_filename_df_and_output_filename:
+        print(input)
+        df[args.protein_column] = df[args.peptide_column].map(
+            peptide_to_matches)
+        df.to_csv(output, index=False)
+        print("Wrote", output)
 
 
 if __name__ == '__main__':

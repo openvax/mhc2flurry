@@ -39,5 +39,5 @@ releases:
               url: https://github.com/openvax/mhc2flurry/releases/download/pre-0.0.1/data_pdb.20210303.tar.bz2
               default: false
             - name: data_proteomes
-              url: https://github.com/openvax/mhc2flurry/releases/download/pre-0.0.1/data_proteomes.20210304.tar.bz2
+              url: https://github.com/openvax/mhc2flurry/releases/download/pre-0.0.1/data_proteomes.20210305.tar.bz2
               default: false

@@ -17,6 +17,7 @@ export PYTHONUNBUFFERED=1
 mhc2flurry-downloads info
 mhc2flurry-downloads path data_published
 mhc2flurry-downloads path data_iedb
+mhc2flurry-downloads path data_proteomes
 
 mkdir -p "$SCRATCH_DIR"
 rm -rf "$SCRATCH_DIR/$DOWNLOAD_NAME"
@@ -64,7 +65,7 @@ rm -rf ms
 time python curate.py \
     --data-iedb \
         "$(mhc2flurry-downloads path data_iedb)/mhc_ligand_full.csv.bz2" \
-    --data-additional-ms "$(pwd)/ms.by_pmid.csv.bz2" \
+    --data-additional-ms "$(pwd)/ms.by_pmid.csv" \
     --out-csv curated_training_data.csv \
     --out-affinity-csv curated_training_data.affinity.csv \
     --out-mass-spec-csv curated_training_data.mass_spec.csv
@@ -74,14 +75,36 @@ time python curate.py \
         "$(mhc2flurry-downloads path data_iedb)/mhc_ligand_full.csv.bz2" \
     --out-csv curated_training_data.no_additional_ms.csv
 
-for i in ms.by_pmid.csv curated_training_data.csv curated_training_data.mass_spec.csv curated_training_data.no_additional_ms.csv
-do
-    time python annotate_proteins.py \
-        "$(pwd)/$i" \
-        "$(mhc2flurry-downloads path data_proteomes)/human.uniprot.one_per_gene.fasta.gz" \
-        --protein-column proteins_human \
-        --out-csv "$(pwd)/$i"
-done
+# Annotate human proteins
+time python annotate_proteins.py \
+    "$(mhc2flurry-downloads path data_proteomes)/human.uniprot.isoforms.fasta.gz" \
+    --annotate "$(pwd)/ms.by_pmid.csv" - \
+    --annotate "$(pwd)/curated_training_data.csv" - \
+    --annotate "$(pwd)/curated_training_data.mass_spec.csv" - \
+    --annotate "$(pwd)/curated_training_data.no_additional_ms.csv" - \
+    --fm-index-suffix .fm \
+    --protein-column proteins_human
+
+# Annotate mouse proteins
+time python annotate_proteins.py \
+    "$(mhc2flurry-downloads path data_proteomes)/mouse.uniprot.isoforms.fasta.gz" \
+    --annotate "$(pwd)/ms.by_pmid.csv" - \
+    --annotate "$(pwd)/curated_training_data.csv" - \
+    --annotate "$(pwd)/curated_training_data.mass_spec.csv" - \
+    --annotate "$(pwd)/curated_training_data.no_additional_ms.csv" - \
+    --fm-index-suffix .fm \
+    --protein-column proteins_mouse
+
+# Annotate viral proteins
+time python annotate_proteins.py \
+    "$(mhc2flurry-downloads path data_proteomes)/viral.uniprot.fasta.gz" \
+    --annotate "$(pwd)/ms.by_pmid.csv" - \
+    --annotate "$(pwd)/curated_training_data.csv" - \
+    --annotate "$(pwd)/curated_training_data.mass_spec.csv" - \
+    --annotate "$(pwd)/curated_training_data.no_additional_ms.csv" - \
+    --fm-index-suffix .fm \
+    --protein-column proteins_viral
+
 
 for i in $(ls *.csv)
 do

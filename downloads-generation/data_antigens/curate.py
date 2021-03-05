@@ -24,7 +24,7 @@ parser.add_argument(
 parser.add_argument(
     "--data-sequences",
     metavar="SEQ.fasta",
-    help="Path to IEDB-style T cell epitope data (tcell_full_v3.csv)")
+    help="Path to proteome sequences")
 
 parser.add_argument(
     "--max-epitopes",

@@ -28,7 +28,7 @@ time python curate.py \
     --data-iedb \
         "$(mhc2flurry-downloads path data_iedb)/tcell_full_v3.csv.bz2" \
     --data-sequences \
-        "$(mhc2flurry-downloads path data_iedb)/viruses.uniprot.fasta.gz" \
+        "$(mhc2flurry-downloads path data_proteomes)/viral.uniprot.fasta.gz" \
     --out-csv epitope_to_sequence.csv
 
 bzip2 epitope_to_sequence.csv
