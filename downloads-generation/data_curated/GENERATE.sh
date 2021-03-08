@@ -14,7 +14,6 @@ SCRIPT_DIR=$(dirname "$SCRIPT_ABSOLUTE_PATH")
 export PYTHONUNBUFFERED=1
 
 # Check that needed downloads are available.
-mhc2flurry-downloads info
 mhc2flurry-downloads path data_published
 mhc2flurry-downloads path data_iedb
 mhc2flurry-downloads path data_proteomes
@@ -31,6 +30,8 @@ exec 2> >(tee -ia "$SCRATCH_DIR/$DOWNLOAD_NAME/LOG.txt" >&2)
 date
 pip freeze
 git status
+mhc2flurry-downloads info
+
 
 cd $SCRATCH_DIR/$DOWNLOAD_NAME
 
