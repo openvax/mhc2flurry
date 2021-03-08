@@ -24,7 +24,7 @@ releases:
               url: https://github.com/openvax/mhc2flurry/releases/download/pre-0.0.1/allele_sequences.20210222.tar.bz2
               default: false
             - name: data_curated
-              url: https://github.com/openvax/mhc2flurry/releases/download/pre-0.0.1/data_curated.20210304.tar.bz2
+              url: https://github.com/openvax/mhc2flurry/releases/download/pre-0.0.1/data_curated.20210305.tar.bz2
               default: false
             - name: data_published
               url: https://github.com/openvax/mhc2flurry/releases/download/pre-0.0.1/data_published.20210304.tar.bz2
