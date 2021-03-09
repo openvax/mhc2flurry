@@ -8,7 +8,7 @@ import argparse
 
 import pandas
 
-from mhc2flurry.common import normalize_allele_name
+from mhc2flurry.common import normalize_allele_name, make_allele_pairs
 
 
 parser = argparse.ArgumentParser(usage=__doc__)
@@ -184,7 +184,22 @@ def load_data_additional_ms(filename):
     ].copy()
     print("Now", len(df))
 
-    df["allele"] = df["hla"].map(normalize_allele_name)
+    # The "allele" column should be an allele pair
+    hla_to_allele_pair = {}
+    for hla in df.hla.unique():
+        pieces = hla.split()
+        if len(pieces) > 2:
+            raise ValueError("Multiple alleles in monoallelic", pieces)
+        pairs = make_allele_pairs(pieces)
+        if len(pairs) != 1:
+            raise ValueError(
+                "Monoallelic hla does not give a single allele pair", pieces)
+        hla_to_allele_pair[hla] = pairs[0]
+
+    print("Mapping monoallelic hla to allele pairs:")
+    print(hla_to_allele_pair)
+
+    df["allele"] = df["hla"].map(hla_to_allele_pair)
     assert not (df.allele.isnull()).any()
     df["measurement_value"] = QUALITATIVE_TO_AFFINITY["Positive"]
     df["measurement_inequality"] = "<"

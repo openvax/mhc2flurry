@@ -1,6 +1,17 @@
 # mhc2flurry
 MHC class II binding predictor, under development
 
-Downloads available at:
+## Installation
+Install using pip from a checkout:
 
-https://www.dropbox.com/sh/eu29m9b6blcwmts/AADXEDaXmGdfBWQsHszbw4qsa?dl=0
+```
+$ pip install .
+```
+
+To run the unit tests:
+
+```
+$ pip install pytest
+$ pytest
+```
+

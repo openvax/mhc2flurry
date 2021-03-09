@@ -166,8 +166,8 @@ def handle_pmid_29314611(filename):
     """Ritz, ..., Fugmann. Proteomics 2018 [PMID 29314611]"""
 
     hla_types = {
-        "MAVER-1": "DRB1*01:01 DRB1*13:01 DRB3*02:02 DQA1*01:01-DQB1*05:01 DQA1*01:03-DQB1*05:01 DQA1*01:01-DQB1*06:03 DQA1*01:03-DQB1*06:03",
-        "DOHH2": "DRB1*01:01 DRB1*15:01 DRB5*01:01 DQA1*01:01-DQB1*05:01 DQA1*01:01-DQB1*06:02 DQA1*01:02-DQB1*05:01 DQA1*01:02-DQB1*06:02",
+        "MAVER-1": "DRB1*01:01 DRB1*13:01 DRB3*02:02 DQA1*01:01 DQB1*05:01 DQA1*01:03 DQB1*06:03",
+        "DOHH2": "DRB1*01:01 DRB1*15:01 DRB5*01:01 DQA1*01:01 DQB1*05:01 DQB1*06:02 DQA1*01:02",
     }
     pulldown_antibody = {
         "DR": "L243 (HLA-DR)",
@@ -214,7 +214,7 @@ def handle_pmid_31495665(filename):
         "HLA-DR_A375": "DRB1*07:01 DRB4*01:01 DRB1*04:05",
         "HLA-DR_Lung": "DRB1*01:01 DRB1*03:01 DRB3*01:01",
         "HLA-DR_PBMC_HDSC": "DRB1*03:01 DRB1*11:01 DRB3*01:01 DRB3*02:02",
-        "HLA-DR_PBMC_RG1095": "HLA-DRA1*01:01-DRB1*03:01 HLA-DRA1*01:01-DRB1*11:01 HLA-DRA1*01:01-DRB3*01:01 HLA-DRA1*01:01-DRB3*02:02",
+        "HLA-DR_PBMC_RG1095": "DRB1*03:01 DRB1*11:01 DRB3*01:01 DRB3*02:02",
         "HLA-DR_PBMC_RG1104": "DRB1*01:01 DRB1*11:01 DRB3*02:02",
         "HLA-DR_PBMC_RG1248": "DRB1*03:01 DRB1*03:01 DRB3*01:01 DRB3*01:01",
 
@@ -225,8 +225,8 @@ def handle_pmid_31495665(filename):
         "HLA-DR_SILAC_Donor1_5hrLysate": "DRB1*07:01 DRB4*01:01",
         "HLA-DR_SILAC_Donor1_DConly": "DRB1*07:01 DRB4*01:01",
         "HLA-DR_SILAC_Donor1_UVovernight": "DRB1*07:01 DRB4*01:01",
-        "HLA-DR_SILAC_Donor2_DC_UV_16hr": "DRB1*04:01 DRB4*01:03 DRB1*15:03 DRB5*01:01 DQB1*03:02-DQA1*01:02 DQB1*06:02-DQA1*03:01 DPB1*02:01-DPA1*01:03 DPB1*04:01-DPA1*01:03",
-        "HLA-DR_SILAC_Donor2_DC_UV_24hr": "DRB1*04:01 DRB4*01:03 DRB1*15:03 DRB5*01:01 DQB1*03:02-DQA1*01:02 DQB1*06:02-DQA1*03:01 DPB1*02:01-DPA1*01:03 DPB1*04:01-DPA1*01:03",
+        "HLA-DR_SILAC_Donor2_DC_UV_16hr": "DRB1*04:01 DRB4*01:03 DRB1*15:03 DRB5*01:01 DQB1*03:02 DQA1*01:02 DQB1*06:02 DQA1*03:01 DPB1*02:01 DPA1*01:03 DPB1*04:01",
+        "HLA-DR_SILAC_Donor2_DC_UV_24hr": "DRB1*04:01 DRB4*01:03 DRB1*15:03 DRB5*01:01 DQB1*03:02 DQA1*01:02 DQB1*06:02 DQA1*03:01 DPB1*02:01 DPA1*01:03 DPB1*04:01",
         "HLA-DR_Spleen": "DRB1*04:01 DRB4*01:03 DRB1*15:03 DRB5*01:01",
         "MAPTAC_A*02:01": "HLA-A*02:01",
         "MAPTAC_A*11:01": "HLA-A*11:01",
@@ -236,20 +236,20 @@ def handle_pmid_31495665(filename):
         "MAPTAC_B*52:01": "HLA-B*52:01",
         "MAPTAC_C*03:03": "HLA-C*03:03",
         "MAPTAC_C*06:02": "HLA-C*06:02",
-        "MAPTAC_DPB1*06:01/DPA1*01:03_dm+": "HLA-DPA1*01:03-DPB1*06:01",
-        "MAPTAC_DPB1*06:01/DPA1*01:03_dm-": "HLA-DPA1*01:03-DPB1*06:01",
-        "MAPTAC_DQB1*06:04/DQA1*01:02_dm+": "HLA-DQA1*01:02-DQB1*06:04",
-        "MAPTAC_DQB1*06:04/DQA1*01:02_dm-": "HLA-DQA1*01:02-DQB1*06:04",
-        "MAPTAC_DRB1*01:01": "HLA-DRA1*01:01-DRB1*01:01",
-        "MAPTAC_DRB1*03:01": "HLA-DRA1*01:01-DRB1*03:01",
-        "MAPTAC_DRB1*04:01": "HLA-DRA1*01:01-DRB1*04:01",
-        "MAPTAC_DRB1*07:01": "HLA-DRA1*01:01-DRB1*07:01",
-        "MAPTAC_DRB1*11:01": "HLA-DRA1*01:01-DRB1*11:01",
-        "MAPTAC_DRB1*12:01_dm+": "HLA-DRA1*01:01-DRB1*12:01",
-        "MAPTAC_DRB1*12:01_dm-": "HLA-DRA1*01:01-DRB1*12:01",
-        "MAPTAC_DRB1*15:01": "HLA-DRA1*01:01-DRB1*15:01",
-        "MAPTAC_DRB3*01:01_dm+": "HLA-DRA1*01:01-DRB3*01:01",
-        "MAPTAC_DRB3*01:01_dm-": "HLA-DRA1*01:01-DRB3*01:01",
+        "MAPTAC_DPB1*06:01/DPA1*01:03_dm+": "DPA1*01:03 DPB1*06:01",
+        "MAPTAC_DPB1*06:01/DPA1*01:03_dm-": "DPA1*01:03 DPB1*06:01",
+        "MAPTAC_DQB1*06:04/DQA1*01:02_dm+": "DQA1*01:02 DQB1*06:04",
+        "MAPTAC_DQB1*06:04/DQA1*01:02_dm-": "DQA1*01:02 DQB1*06:04",
+        "MAPTAC_DRB1*01:01": "DRB1*01:01",
+        "MAPTAC_DRB1*03:01": "DRB1*03:01",
+        "MAPTAC_DRB1*04:01": "DRB1*04:01",
+        "MAPTAC_DRB1*07:01": "DRB1*07:01",
+        "MAPTAC_DRB1*11:01": "DRB1*11:01",
+        "MAPTAC_DRB1*12:01_dm+": "DRB1*12:01",
+        "MAPTAC_DRB1*12:01_dm-": "DRB1*12:01",
+        "MAPTAC_DRB1*15:01": "DRB1*15:01",
+        "MAPTAC_DRB3*01:01_dm+": "DRB3*01:01",
+        "MAPTAC_DRB3*01:01_dm-": "DRB3*01:01",
     }
     pulldown_antibody = {
         "HLA-DR_A375": "L243+tal1b5 (HLA-DR)",
@@ -836,6 +836,17 @@ def run():
                 normalize_allele_name(a, raise_on_error=True)
                 for a in hla.split()
             ]))
+
+    for _, row in ms_df.drop_duplicates("hla").iterrows():
+        alleles = row.hla.split()
+        for allele in alleles:
+            # Catch pairs like HLA-DQA*01:01-DQB1*01:01.
+            # We want only single alleles. They get paired up in analysis code.
+            if "-" in allele.replace("HLA-", ""):
+                raise ValueError(
+                    "Allele pair present: %s. In: %s\n%s" % (
+                        allele, row.hla, row))
+
 
     sample_table = ms_df[
         [

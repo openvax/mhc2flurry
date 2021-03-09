@@ -21,8 +21,8 @@ import yaml
 import tqdm  # progress bar
 tqdm.monitor_interval = 0  # see https://github.com/tqdm/tqdm/issues/481
 
-from .class1_affinity_predictor import Class1AffinityPredictor
-from .class1_neural_network import Class1NeuralNetwork
+from .class2_affinity_predictor import Class2AffinityPredictor
+from .class2_neural_network import Class2NeuralNetwork
 from .common import configure_logging
 from .local_parallelism import (
     add_local_parallelism_args,

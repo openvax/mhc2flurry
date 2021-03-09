@@ -13,14 +13,35 @@ import pandas
 from . import amino_acid
 
 
-def normalize_allele_name(s, raise_on_error=False):
-    result = mhcgnomes.parse(s, raise_on_error=raise_on_error)
+def normalize_allele_name(name, raise_on_error=False):
+    """
+    Standardize the name of an allele or pair of alpha/beta alleles.
+
+    >>> normalize_allele_name("DQA1*01:02")
+    'HLA-DQA1*01:02'
+
+    >>> normalize_allele_name("DQA1*01:02-DQB1*01:02")
+    'HLA-DQA1*01:02-DQB1*01:02'
+
+    Parameters
+    ----------
+    name : string
+    raise_on_error : boolean
+        If True, throw a ValueError on an invalid allele name. Otherwise,
+        return None (default).
+
+    Returns
+    -------
+    string
+        Normalized name
+    """
+    result = mhcgnomes.parse(name, raise_on_error=raise_on_error)
     if type(result) not in (
             mhcgnomes.Class2Pair,
             mhcgnomes.Allele,
             mhcgnomes.AlleleWithoutGene):
         if raise_on_error:
-            raise ValueError("Unparseable allele: '%s' [%s]" % (s, result))
+            raise ValueError("Unparseable allele: '%s' [%s]" % (name, result))
         return None
 
     # Ignore digits that do not impact protein sequence.
@@ -32,6 +53,66 @@ def normalize_allele_name(s, raise_on_error=False):
         allele.allele_fields = allele.allele_fields[:2]
 
     return result.to_string()
+
+
+def make_allele_pairs(alleles):
+    """
+    Given a list of MHC II alleles, find all the pairs (i.e. DRA with DRB,
+    DPA with DPB, etc.) that may form proteins.
+
+    >>> make_allele_pairs(["DQA1*01:02", "DQA1*02:01", "DQB1*02:02", "DQB1*05:02"])
+    ['HLA-DQA1*01:02-DQB1*02:02', 'HLA-DQA1*01:02-DQB1*05:02', 'HLA-DQA1*02:01-DQB1*02:02', 'HLA-DQA1*02:01-DQB1*05:02']
+
+    Parameters
+    ----------
+    alleles : list of string
+        Individual alleles
+
+    Returns
+    -------
+    list of string
+        List of allele pairs
+    """
+
+
+    """
+    Given a list of individual alleles, like
+    """
+    parsed = [mhcgnomes.parse(a, raise_on_error=True) for a in alleles]
+    if any(p.species_prefix != "HLA" for p in parsed):
+        raise NotImplementedError(
+            "Only human is supported currently. Got: %s" % alleles)
+
+    def make_pairs(alphas, betas):
+        for alpha in alphas:
+            for beta in betas:
+                yield normalize_allele_name(
+                    "%s-%s" % (
+                        alpha.to_string(include_species=False),
+                        beta.to_string(include_species=False)),
+                    raise_on_error=True)
+
+    result = []
+
+    # DR
+    result.extend(
+        make_pairs(
+            [mhcgnomes.parse("HLA-DRA1*01:01")],
+            [p for p in parsed if "DRB" in p.gene_name]))
+
+    # DP
+    result.extend(
+        make_pairs(
+            [p for p in parsed if "DPA" in p.gene_name],
+            [p for p in parsed if "DPB" in p.gene_name]))
+
+    # DQ
+    result.extend(
+        make_pairs(
+            [p for p in parsed if "DQA" in p.gene_name],
+            [p for p in parsed if "DQB" in p.gene_name]))
+
+    return result
 
 
 TENSORFLOW_CONFIGURED = False
