@@ -24,16 +24,13 @@ releases:
               url: https://github.com/openvax/mhc2flurry/releases/download/pre-0.0.1/allele_sequences.20210222.tar.bz2
               default: false
             - name: data_curated
-              url: https://github.com/openvax/mhc2flurry/releases/download/pre-0.0.1/data_curated.20210309.tar.bz2
+              url: https://github.com/openvax/mhc2flurry/releases/download/pre-0.0.1/data_curated.20210413.tar.bz2
               default: false
             - name: data_published
               url: https://github.com/openvax/mhc2flurry/releases/download/pre-0.0.1/data_published.20210304.tar.bz2
               default: false
             - name: data_iedb
-              url: https://github.com/openvax/mhc2flurry/releases/download/pre-0.0.1/data_iedb.20210309.tar.bz2
-              default: false
-            - name: data_antigens
-              url: https://github.com/openvax/mhc2flurry/releases/download/pre-0.0.1/data_antigens.20210204.tar.bz2
+              url: https://github.com/openvax/mhc2flurry/releases/download/pre-0.0.1/data_iedb.20210413.tar.bz2
               default: false
             - name: data_pdb
               url: https://github.com/openvax/mhc2flurry/releases/download/pre-0.0.1/data_pdb.20210303.tar.bz2

@@ -35,9 +35,15 @@ mhc2flurry-downloads info
 
 cd $SCRATCH_DIR/$DOWNLOAD_NAME
 
-cp $SCRIPT_DIR/curate.py .
+cp $SCRIPT_DIR/curate_mhc_ligands.py .
+cp $SCRIPT_DIR/curate_t_cell_epitopes.py .
 cp $SCRIPT_DIR/curate_ms_by_pmid.py .
 cp $SCRIPT_DIR/annotate_proteins.py .
+
+# Curate IEDB T cell epitopes
+time python curate_t_cell_epitopes.py \
+    --data-iedb "$(mhc2flurry-downloads path data_iedb)/tcell_full_v3.csv.bz2" \
+    --out-csv "$(pwd)/t_cell_epitopes.csv"
 
 
 MS_DIR="$(mhc2flurry-downloads path data_published)/ms"
@@ -63,7 +69,7 @@ time python curate_ms_by_pmid.py $CURATE_BY_PMID_ARGS \
 
 rm -rf ms
 
-time python curate.py \
+time python curate_mhc_ligands.py \
     --data-iedb \
         "$(mhc2flurry-downloads path data_iedb)/mhc_ligand_full.csv.bz2" \
     --data-additional-ms "$(pwd)/ms.by_pmid.csv" \
@@ -71,7 +77,7 @@ time python curate.py \
     --out-affinity-csv curated_training_data.affinity.csv \
     --out-mass-spec-csv curated_training_data.mass_spec.csv
 
-time python curate.py \
+time python curate_mhc_ligands.py \
     --data-iedb \
         "$(mhc2flurry-downloads path data_iedb)/mhc_ligand_full.csv.bz2" \
     --out-csv curated_training_data.no_additional_ms.csv
@@ -83,6 +89,7 @@ time python annotate_proteins.py \
     --annotate "$(pwd)/curated_training_data.csv" - \
     --annotate "$(pwd)/curated_training_data.mass_spec.csv" - \
     --annotate "$(pwd)/curated_training_data.no_additional_ms.csv" - \
+    --annotate "$(pwd)/t_cell_epitopes.csv" - \
     --fm-index-suffix .fm \
     --protein-column proteins_human
 
@@ -93,6 +100,7 @@ time python annotate_proteins.py \
     --annotate "$(pwd)/curated_training_data.csv" - \
     --annotate "$(pwd)/curated_training_data.mass_spec.csv" - \
     --annotate "$(pwd)/curated_training_data.no_additional_ms.csv" - \
+    --annotate "$(pwd)/t_cell_epitopes.csv" - \
     --fm-index-suffix .fm \
     --protein-column proteins_mouse
 
@@ -103,6 +111,7 @@ time python annotate_proteins.py \
     --annotate "$(pwd)/curated_training_data.csv" - \
     --annotate "$(pwd)/curated_training_data.mass_spec.csv" - \
     --annotate "$(pwd)/curated_training_data.no_additional_ms.csv" - \
+    --annotate "$(pwd)/t_cell_epitopes.csv" - \
     --fm-index-suffix .fm \
     --protein-column proteins_viral
 
